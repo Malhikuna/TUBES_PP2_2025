@@ -5,61 +5,77 @@ import org.example.controller.TransaksiController;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.HashMap;
 
 public class PeminjamanDialogView extends JDialog {
     private JComboBox<String> cbAnggota, cbBuku;
-    private TransaksiController transaksiController;
+    private JTextField txtTgl, txtKategori, txtDurasi;
+    private HashMap<String, String> mapAnggota = new HashMap<>();
+    private HashMap<String, String> mapBuku = new HashMap<>();
+    private TransaksiController controller;
 
     public PeminjamanDialogView(Frame owner, TransaksiController controller) {
         super(owner, "Tambah Peminjaman Baru", true);
-        this.transaksiController = controller;
-
-        setSize(400, 300);
+        this.controller = controller;
+        setSize(400, 350);
         setLocationRelativeTo(owner);
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        setLayout(new GridLayout(5, 2, 10, 10));
 
+        add(new JLabel(" Pilih Anggota:"));
         cbAnggota = new JComboBox<>();
+        add(cbAnggota);
+
+        add(new JLabel(" Pilih Buku:"));
         cbBuku = new JComboBox<>();
-        loadComboData();
+        add(cbBuku);
 
-        gbc.gridx = 0; gbc.gridy = 0; add(new JLabel("Pilih Anggota:"), gbc);
-        gbc.gridx = 1; add(cbAnggota, gbc);
+        add(new JLabel(" Tanggal Pinjam:"));
+        txtTgl = new JTextField(LocalDate.now().toString());
+        txtTgl.setEditable(false);
+        add(txtTgl);
 
-        gbc.gridx = 0; gbc.gridy = 1; add(new JLabel("Pilih Buku:"), gbc);
-        gbc.gridx = 1; add(cbBuku, gbc);
+        add(new JLabel(" Durasi (Hari):"));
+        txtDurasi = new JTextField("7");
+        add(txtDurasi);
 
         JButton btnSimpan = new JButton("Simpan");
-        gbc.gridx = 1; gbc.gridy = 3; add(btnSimpan, gbc);
+        JButton btnBatal = new JButton("Batal");
+        add(btnSimpan);
+        add(btnBatal);
+
+        loadDataCB();
 
         btnSimpan.addActionListener(e -> {
-            if (cbAnggota.getSelectedItem() != null && cbBuku.getSelectedItem() != null) {
-                String idAnggota = cbAnggota.getSelectedItem().toString().split(" - ")[0];
-                String idBuku = cbBuku.getSelectedItem().toString().split(" - ")[0];
-                transaksiController.pinjamBuku(idAnggota, idBuku);
-                dispose();
-            }
+            String idA = mapAnggota.get(cbAnggota.getSelectedItem().toString());
+            String idB = mapBuku.get(cbBuku.getSelectedItem().toString());
+
+            int durasi = Integer.parseInt(txtDurasi.getText()); //
+
+            controller.pinjamBuku(idA, idB, durasi);
+            dispose();
         });
+
+        btnBatal.addActionListener(e -> dispose());
     }
 
-    private void loadComboData() {
+    private void loadDataCB() {
         try (Connection conn = KoneksiDB.configDB()) {
             ResultSet rsA = conn.createStatement().executeQuery("SELECT id_anggota, nama FROM anggota");
-            while(rsA.next()) {
-                cbAnggota.addItem(rsA.getString("id_anggota") + " - " + rsA.getString("nama"));
+            while (rsA.next()) {
+                String item = rsA.getString("nama");
+                cbAnggota.addItem(item);
+                mapAnggota.put(item, rsA.getString("id_anggota"));
             }
-
             ResultSet rsB = conn.createStatement().executeQuery("SELECT id_buku, judul FROM buku WHERE stok > 0");
-            while(rsB.next()) {
-                cbBuku.addItem(rsB.getString("id_buku") + " - " + rsB.getString("judul"));
+            while (rsB.next()) {
+                String item = rsB.getString("judul");
+                cbBuku.addItem(item);
+                mapBuku.put(item, rsB.getString("id_buku"));
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
-
