@@ -17,7 +17,7 @@ public class BukuController {
         this.view = view;
 
         listener();
-        loadDataBuku();
+        loadDataBuku(null);
 
     }
 
@@ -28,32 +28,57 @@ public class BukuController {
 
 
 
-    public DefaultTableModel loadDataBuku() {
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("ID Buku");
-        model.addColumn("Judul");
-        model.addColumn("Pengarang");
-        model.addColumn("Kategori");
-        model.addColumn("Stok");
+    public void loadDataBuku(String kataKunci) {
+        DefaultTableModel tableModel = view.model;
+        tableModel.setRowCount(0);
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet res = null;
 
         try {
-            Connection conn = KoneksiDB.configDB();
-            Statement stm = conn.createStatement();
-            ResultSet res = stm.executeQuery("SELECT * FROM buku");
+            conn = KoneksiDB.configDB();
+            String sql;
 
-            while (res.next()) {
-                model.addRow(new Object[]{
-                        res.getString("id_buku"),
-                        res.getString("judul"),
-                        res.getString("pengarang"),
-                        res.getString("kategori"),
-                        res.getInt("stok")
-                });
+            if (kataKunci == null || kataKunci.isEmpty()) {
+                sql = "SELECT * FROM buku";
+                pst = conn.prepareStatement(sql);
+            } else {
+                sql = "SELECT * FROM buku WHERE judul LIKE ? OR pengarang LIKE ?";
+                pst = conn.prepareStatement(sql);
+                pst.setString(1, "%" + kataKunci + "%");
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Gagal Load Data: " + e.getMessage());
+
+
+            res = pst.executeQuery();
+
+
+
+            int no = 1;
+            while (res.next()) {
+                tableModel.addRow(new Object[]{
+                        no++,
+                        res.getString("id_buku"),
+                res.getString("judul"),
+                res.getString("pengarang"),
+                res.getString("kategori"),
+                res.getInt("stok")
+            });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Gagal Load Data Buku: " + e.getMessage());
+        } finally {
+            try { if (res != null) res.close(); } catch (Exception e) {}
+            try { if (pst != null) pst.close(); } catch (Exception e) {}
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
         }
-        return model;
+    }
+
+
+    private void cariData() {
+//        String kataKunci = view.txtCari.getText();
+//        loadDataBuku(kataKunci);
+//        tinngal pake aja ya gaess
+
     }
 
     public void tambahBuku(String id, String judul, String pengarang, String kategori, int stok) {
