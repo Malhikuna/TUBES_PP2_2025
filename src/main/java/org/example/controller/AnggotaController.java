@@ -17,7 +17,7 @@ public class AnggotaController {
         this.view = view;
 
         listener();
-        loadDataAnggota();
+        loadDataAnggota("", "ASC");;
 
     }
 
@@ -31,31 +31,54 @@ public class AnggotaController {
 
 
 
-    public DefaultTableModel loadDataAnggota() {
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("ID Anggota");
-        model.addColumn("Nama");
-        model.addColumn("No Telp");
-        model.addColumn("Status");
+    public void loadDataAnggota(String kataKunci, String sortOrder) {
+        DefaultTableModel tableModel = view.model;
+        tableModel.setRowCount(0);
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet res = null;
 
         try {
-            Connection conn = KoneksiDB.configDB();
-            Statement stm = conn.createStatement();
-            ResultSet res = stm.executeQuery("SELECT * FROM anggota");
+            conn = KoneksiDB.configDB();
+            StringBuilder sql = new StringBuilder("SELECT * FROM anggota");
 
-            while (res.next()) {
-                model.addRow(new Object[]{
-                        res.getString("id_anggota"),
-                        res.getString("nama"),
-                        res.getString("no_telp"),
-                        res.getString("status_aktif")
-                });
+            if (kataKunci != null && !kataKunci.isEmpty()) {
+                sql.append(" WHERE nama LIKE ? OR id_anggota LIKE ?");
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Gagal Load Data: " + e.getMessage());
+
+            if (sortOrder != null && !sortOrder.isEmpty()) {
+                sql.append(" ORDER BY status_aktif ").append(sortOrder);
+            }
+
+            pst = conn.prepareStatement(sql.toString());
+
+            if (kataKunci != null && !kataKunci.isEmpty()) {
+                pst.setString(1, "%" + kataKunci + "%");
+                pst.setString(2, "%" + kataKunci + "%");
+            }
+
+            res = pst.executeQuery();
+            while (res.next()) {
+                tableModel.addRow(new Object[]{
+                        res.getString("id_anggota"),
+                res.getString("nama"),
+                res.getString("no_telp"),
+                res.getString("status_aktif")
+            });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Gagal Load Data Anggota: " + e.getMessage());
         }
-        return model;
     }
+
+    private void cariData() {
+//        String kataKunci = view.txtCari.getText();
+//        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
+//        loadDataAnggpota(kataKunci, sortOrder);
+        // ini tinggal pake ya
+    }
+
+
 
     public void tambahAnggota(String id, String nama, String telp, String status) {
         try {
