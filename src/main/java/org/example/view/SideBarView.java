@@ -36,6 +36,7 @@ public class SideBarView extends JFrame {
         contentPanel.add(new DashboardView(), "Dashboard");
 //        contentPanel.add(new BukuView(), "Master Buku");
 //        contentPanel.add(new AnggotaView(), "Master Anggota");
+        contentPanel.add(new PeminjamanView(), "Transaksi");
         add(sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
     }
