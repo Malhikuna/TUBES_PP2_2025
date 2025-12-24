@@ -75,7 +75,7 @@ public class AnggotaController {
 //        String kataKunci = view.txtCari.getText();
 //        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
 //        loadDataAnggpota(kataKunci, sortOrder);
-        // ini tinggal pake ya
+//         ini tinggal pake ya
     }
 
 

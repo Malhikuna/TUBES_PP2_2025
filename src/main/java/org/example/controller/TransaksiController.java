@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.KoneksiDB;
+import org.example.view.PeminjamanView;
 import org.example.view.TransaksiView;
 
 import java.sql.*;
@@ -11,13 +12,14 @@ import javax.swing.table.DefaultTableModel;
 
 public class TransaksiController {
 
-    private TransaksiView view;
+    private Object view;
 
-    public TransaksiController(TransaksiView view) {
+    public TransaksiController(PeminjamanView view) {
         this.view = view;
         listener();
         loadDataTransaksi(null, "Semua");
     }
+
 
     private void listener() {
     }
@@ -29,9 +31,9 @@ public class TransaksiController {
         model.addColumn("Nama Anggota");
         model.addColumn("Judul Buku");
         model.addColumn("Tgl Pinjam");
-        model.addColumn("Tgl Kembali");
-        model.addColumn("Status");
+        model.addColumn("Tgl Wajib Kembali");
         model.addColumn("Denda");
+        model.addColumn("Status");
 
         try {
             Connection conn = KoneksiDB.configDB();
