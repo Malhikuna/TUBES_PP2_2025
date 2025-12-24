@@ -16,14 +16,15 @@ public class TransaksiController {
     public TransaksiController(TransaksiView view) {
         this.view = view;
         listener();
-        loadDataTransaksi();
+        loadDataTransaksi(null, "Semua");
     }
 
     private void listener() {
     }
 
-    public DefaultTableModel loadDataTransaksi() {
+    public DefaultTableModel loadDataTransaksi(String keyword, String statusFilter) {
         DefaultTableModel model = new DefaultTableModel();
+        // Setup Header Kolom
         model.addColumn("ID Log");
         model.addColumn("Nama Anggota");
         model.addColumn("Judul Buku");
@@ -34,14 +35,29 @@ public class TransaksiController {
 
         try {
             Connection conn = KoneksiDB.configDB();
-            Statement stm = conn.createStatement();
-            String sql = "SELECT p.id_log, a.nama, b.judul, p.tgl_pinjam, p.tgl_kembali, p.status, p.denda " +
-                    "FROM peminjaman p " +
-                    "JOIN anggota a ON p.id_anggota = a.id_anggota " +
-                    "JOIN buku b ON p.id_buku = b.id_buku " +
-                    "ORDER BY p.id_log DESC";
 
-            ResultSet res = stm.executeQuery(sql);
+            StringBuilder sql = new StringBuilder(
+                    "SELECT p.id_log, a.nama, b.judul, p.tgl_pinjam, p.tgl_kembali, p.status, p.denda " +
+                            "FROM peminjaman p " +
+                            "JOIN anggota a ON p.id_anggota = a.id_anggota " +
+                            "JOIN buku b ON p.id_buku = b.id_buku " +
+                            "WHERE 1=1 "
+            );
+
+            if (keyword != null && !keyword.isEmpty()) {
+                sql.append("AND (a.nama LIKE '%").append(keyword).append("%' ")
+                        .append("OR b.judul LIKE '%").append(keyword).append("%') ");
+            }
+
+            if (statusFilter != null && !statusFilter.equalsIgnoreCase("Semua")) {
+                sql.append("AND p.status = '").append(statusFilter).append("' ");
+            }
+
+            sql.append("ORDER BY p.id_log DESC");
+
+            // E. Eksekusi
+            Statement stm = conn.createStatement();
+            ResultSet res = stm.executeQuery(sql.toString());
 
             while (res.next()) {
                 model.addRow(new Object[]{
@@ -58,6 +74,11 @@ public class TransaksiController {
             JOptionPane.showMessageDialog(null, "Gagal Load Transaksi: " + e.getMessage());
         }
         return model;
+    }
+
+    public DefaultTableModel filterByStatus(String status) {
+        // Panggil mesin utama, keyword dianggap null (kosong)
+        return loadDataTransaksi(null, status);
     }
 
     public void pinjamBuku(String idAnggota, String idBuku) {
