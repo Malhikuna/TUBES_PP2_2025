@@ -55,7 +55,6 @@ public class TransaksiController {
 
             sql.append("ORDER BY p.id_log DESC");
 
-            // E. Eksekusi
             Statement stm = conn.createStatement();
             ResultSet res = stm.executeQuery(sql.toString());
 
@@ -77,7 +76,6 @@ public class TransaksiController {
     }
 
     public DefaultTableModel filterByStatus(String status) {
-        // Panggil mesin utama, keyword dianggap null (kosong)
         return loadDataTransaksi(null, status);
     }
 
@@ -116,7 +114,7 @@ public class TransaksiController {
             }
 
         } catch (Exception e) {
-            try { if (conn != null) conn.rollback(); } catch (SQLException ex) {} // Batalkan jika error
+            try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             JOptionPane.showMessageDialog(null, "Gagal Pinjam: " + e.getMessage());
         }
     }
@@ -137,14 +135,14 @@ public class TransaksiController {
                 String idBuku = rs.getString("id_buku");
 
                 LocalDate tglPinjam = tglPinjamSQL.toLocalDate();
-                LocalDate tglKembali = LocalDate.now(); // Hari ini
+                LocalDate tglKembali = LocalDate.now();
                 LocalDate jatuhTempo = tglPinjam.plusDays(7); // Batas 7 hari
 
                 long denda = 0;
                 long hariTelat = ChronoUnit.DAYS.between(jatuhTempo, tglKembali);
 
                 if (hariTelat > 0) {
-                    denda = hariTelat * 2000; // Rp 2.000 per hari
+                    denda = hariTelat * 2000;
                 }
 
                 String sqlUpdate = "UPDATE peminjaman SET tgl_kembali = ?, status = 'Kembali', denda = ? WHERE id_log = ?";
