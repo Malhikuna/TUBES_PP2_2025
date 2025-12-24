@@ -26,7 +26,6 @@ public class TransaksiController {
 
     public DefaultTableModel loadDataTransaksi(String keyword, String statusFilter) {
         DefaultTableModel model = new DefaultTableModel();
-        // Setup Header Kolom
         model.addColumn("ID Log");
         model.addColumn("Nama Anggota");
         model.addColumn("Judul Buku");
@@ -87,37 +86,35 @@ public class TransaksiController {
             conn = KoneksiDB.configDB();
             conn.setAutoCommit(false);
 
-            String sqlCek = "SELECT stok FROM buku WHERE id_buku = ?";
-            PreparedStatement pstCek = conn.prepareStatement(sqlCek);
-            pstCek.setString(1, idBuku);
-            ResultSet rs = pstCek.executeQuery();
+            String sqlPinjam = "INSERT INTO peminjaman (id_anggota, id_buku, tgl_pinjam, status, denda) VALUES (?, ?, CURDATE(), 'Dipinjam', 0)";
+            PreparedStatement pstPinjam = conn.prepareStatement(sqlPinjam);
+            pstPinjam.setString(1, idAnggota);
+            pstPinjam.setString(2, idBuku);
+            pstPinjam.executeUpdate();
 
-            if (rs.next()) {
-                int stok = rs.getInt("stok");
-                if (stok > 0) {
-                    String sqlPinjam = "INSERT INTO peminjaman (id_anggota, id_buku, tgl_pinjam, status) VALUES (?, ?, CURDATE(), 'Dipinjam')";
-                    PreparedStatement pstPinjam = conn.prepareStatement(sqlPinjam);
-                    pstPinjam.setString(1, idAnggota);
-                    pstPinjam.setString(2, idBuku);
-                    pstPinjam.executeUpdate();
+            String sqlStok = "UPDATE buku SET stok = stok - 1 WHERE id_buku = ?";
+            PreparedStatement pstStok = conn.prepareStatement(sqlStok);
+            pstStok.setString(1, idBuku);
+            pstStok.executeUpdate();
 
-                    String sqlStok = "UPDATE buku SET stok = stok - 1 WHERE id_buku = ?";
-                    PreparedStatement pstStok = conn.prepareStatement(sqlStok);
-                    pstStok.setString(1, idBuku);
-                    pstStok.executeUpdate();
-
-                    conn.commit();
-                    JOptionPane.showMessageDialog(null, "Peminjaman Berhasil! Stok berkurang.");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Gagal: Stok Buku Habis!");
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Kode Buku tidak ditemukan.");
-            }
-
+            conn.commit();
+            JOptionPane.showMessageDialog(null, "Peminjaman Berhasil!");
         } catch (Exception e) {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             JOptionPane.showMessageDialog(null, "Gagal Pinjam: " + e.getMessage());
+        }
+    }
+
+    public void hapusLog(int idLog) {
+        try {
+            Connection conn = KoneksiDB.configDB();
+            String sql = "DELETE FROM peminjaman WHERE id_log = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, idLog);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Riwayat Berhasil Dihapus");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Gagal Hapus: " + e.getMessage());
         }
     }
 
@@ -138,7 +135,7 @@ public class TransaksiController {
 
                 LocalDate tglPinjam = tglPinjamSQL.toLocalDate();
                 LocalDate tglKembali = LocalDate.now();
-                LocalDate jatuhTempo = tglPinjam.plusDays(7); // Batas 7 hari
+                LocalDate jatuhTempo = tglPinjam.plusDays(7);
 
                 long denda = 0;
                 long hariTelat = ChronoUnit.DAYS.between(jatuhTempo, tglKembali);
