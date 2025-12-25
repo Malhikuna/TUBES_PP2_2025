@@ -38,7 +38,9 @@ public class TransaksiController {
             Connection conn = KoneksiDB.configDB();
 
             StringBuilder sql = new StringBuilder(
-                    "SELECT p.id_log, a.nama, b.judul, p.tgl_pinjam, p.tgl_kembali, p.status, p.denda " +
+                    "SELECT p.id_log, a.nama, b.judul, p.tgl_pinjam, p.tgl_kembali, " +
+                            "DATE_ADD(p.tgl_pinjam, INTERVAL p.durasi DAY) AS tgl_wajib, " +
+                            "p.status, p.denda " +
                             "FROM peminjaman p " +
                             "JOIN anggota a ON p.id_anggota = a.id_anggota " +
                             "JOIN buku b ON p.id_buku = b.id_buku " +
@@ -65,7 +67,7 @@ public class TransaksiController {
                         res.getString("nama"),
                         res.getString("judul"),
                         res.getDate("tgl_pinjam"),
-                        res.getDate("tgl_kembali"),
+                        res.getDate("tgl_wajib"),
                         res.getString("status"),
                         res.getDouble("denda")
                 });
@@ -80,16 +82,17 @@ public class TransaksiController {
         return loadDataTransaksi(null, status);
     }
 
-    public void pinjamBuku(String idAnggota, String idBuku) {
+    public void pinjamBuku(String idAnggota, String idBuku, int durasi) {
         Connection conn = null;
         try {
             conn = KoneksiDB.configDB();
             conn.setAutoCommit(false);
 
-            String sqlPinjam = "INSERT INTO peminjaman (id_anggota, id_buku, tgl_pinjam, status, denda) VALUES (?, ?, CURDATE(), 'Dipinjam', 0)";
+            String sqlPinjam = "INSERT INTO peminjaman (id_anggota, id_buku, tgl_pinjam, status, denda, durasi) VALUES (?, ?, CURDATE(), 'Dipinjam', 0, ?)";
             PreparedStatement pstPinjam = conn.prepareStatement(sqlPinjam);
             pstPinjam.setString(1, idAnggota);
             pstPinjam.setString(2, idBuku);
+            pstPinjam.setInt(3, durasi);
             pstPinjam.executeUpdate();
 
             String sqlStok = "UPDATE buku SET stok = stok - 1 WHERE id_buku = ?";

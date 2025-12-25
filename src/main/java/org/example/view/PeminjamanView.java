@@ -69,7 +69,7 @@ public class PeminjamanView extends JPanel {
     }
 
     public void refreshTable() {
-        DefaultTableModel modelFromDb = transaksiController.loadDataTransaksi();
+        DefaultTableModel modelFromDb = transaksiController.loadDataTransaksi(null, "Semua");
         tableModel.setRowCount(0);
 
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
@@ -83,7 +83,8 @@ public class PeminjamanView extends JPanel {
             row[4] = modelFromDb.getValueAt(i, 4);
             row[5] = modelFromDb.getValueAt(i, 5);
 
-            double dendaVal = (double) modelFromDb.getValueAt(i, 6);
+            Object dendaObj = modelFromDb.getValueAt(i, 6);
+            double dendaVal = (dendaObj != null) ? Double.parseDouble(dendaObj.toString()) : 0;
             row[6] = nf.format(dendaVal);
 
             tableModel.addRow(row);
@@ -104,18 +105,15 @@ public class PeminjamanView extends JPanel {
 
     private void applyFilters() {
         java.util.List<RowFilter<Object, Object>> filters = new ArrayList<>();
-
         String text = txtSearch.getText();
         if (!text.trim().isEmpty()) {
             filters.add(RowFilter.regexFilter("(?i)" + text, 1));
         }
-
         if (rbDipinjam.isSelected()) {
             filters.add(RowFilter.regexFilter("^Dipinjam$", 5));
         } else if (rbKembali.isSelected()) {
             filters.add(RowFilter.regexFilter("^Kembali$", 5));
         }
-
         rowSorter.setRowFilter(RowFilter.andFilter(filters));
     }
 
@@ -142,7 +140,6 @@ public class PeminjamanView extends JPanel {
                 int modelRow = tableLog.convertRowIndexToModel(row);
                 Object idObj = tableModel.getValueAt(modelRow, 0);
                 int idLog = Integer.parseInt(idObj.toString());
-
                 transaksiController.kembalikanBuku(idLog);
                 refreshTable();
             }
@@ -151,8 +148,15 @@ public class PeminjamanView extends JPanel {
         btnHapus.addActionListener(e -> {
             int row = tableLog.getSelectedRow();
             if (row != -1) {
-                int modelRow = tableLog.convertRowIndexToModel(row);
-                tableModel.removeRow(modelRow);
+                int confirm = JOptionPane.showConfirmDialog(this, "Hapus riwayat ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    int modelRow = tableLog.convertRowIndexToModel(row);
+                    int idLog = Integer.parseInt(tableModel.getValueAt(modelRow, 0).toString());
+                    transaksiController.hapusLog(idLog);
+                    refreshTable();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus!");
             }
         });
     }
