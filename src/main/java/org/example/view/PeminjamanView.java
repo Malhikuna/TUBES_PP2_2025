@@ -60,7 +60,7 @@ public class PeminjamanView extends JPanel {
     }
 
     private void initTable() {
-        tableModel = new DefaultTableModel(new String[]{"ID Log", "Peminjam", "Buku", "Tgl Pinjam", "Tgl Wajib Kembali", "Status", "Denda"}, 0) {
+        tableModel = new DefaultTableModel(new String[]{"ID Log", "Peminjam", "Buku", "Tgl Pinjam", "Tgl Kembali", "Status", "Denda"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -82,8 +82,15 @@ public class PeminjamanView extends JPanel {
             row[1] = modelFromDb.getValueAt(i, 1);
             row[2] = modelFromDb.getValueAt(i, 2);
             row[3] = modelFromDb.getValueAt(i, 3);
-            row[4] = modelFromDb.getValueAt(i, 4);
-            row[5] = modelFromDb.getValueAt(i, 5);
+
+            String status = modelFromDb.getValueAt(i, 5).toString();
+            row[5] = status;
+
+            if (status.equalsIgnoreCase("Dipinjam")) {
+                row[4] = "";
+            } else {
+                row[4] = modelFromDb.getValueAt(i, 4);
+            }
 
             Object dendaObj = modelFromDb.getValueAt(i, 6);
             double dendaVal = (dendaObj != null) ? Double.parseDouble(dendaObj.toString()) : 0;
@@ -145,10 +152,25 @@ public class PeminjamanView extends JPanel {
             int row = tableLog.getSelectedRow();
             if (row != -1) {
                 int modelRow = tableLog.convertRowIndexToModel(row);
-                Object idObj = tableModel.getValueAt(modelRow, 0);
-                int idLog = Integer.parseInt(idObj.toString());
-                transaksiController.kembalikanBuku(idLog);
+
+                int idLog = Integer.parseInt(tableModel.getValueAt(modelRow, 0).toString());
+                String nama = tableModel.getValueAt(modelRow, 1).toString();
+                String judul = tableModel.getValueAt(modelRow, 2).toString();
+                String tglWajib = transaksiController.getTglWajib(idLog);
+
+                PengembalianDialogView dialog = new PengembalianDialogView(
+                        (Frame) SwingUtilities.getWindowAncestor(this),
+                        this.transaksiController,
+                        idLog,
+                        nama,
+                        judul,
+                        tglWajib
+                );
+                dialog.setVisible(true);
+
                 refreshTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Pilih data buku yang ingin dikembalikan!");
             }
         });
 
