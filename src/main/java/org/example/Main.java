@@ -1,12 +1,13 @@
 package org.example;
 
+import org.example.view.LoginView;
 import org.example.view.SideBarView;
 import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            SideBarView frame = new SideBarView();
+            LoginView frame = new LoginView();
             frame.setVisible(true);
         });
     }
