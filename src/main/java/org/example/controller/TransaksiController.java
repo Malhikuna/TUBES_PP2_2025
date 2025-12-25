@@ -2,7 +2,6 @@ package org.example.controller;
 
 import org.example.KoneksiDB;
 import org.example.view.PeminjamanView;
-import org.example.view.TransaksiView;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -16,12 +15,7 @@ public class TransaksiController {
 
     public TransaksiController(PeminjamanView view) {
         this.view = view;
-        listener();
         loadDataTransaksi(null, "Semua");
-    }
-
-
-    private void listener() {
     }
 
     public DefaultTableModel loadDataTransaksi(String keyword, String statusFilter) {
@@ -78,8 +72,22 @@ public class TransaksiController {
         return model;
     }
 
-    public DefaultTableModel filterByStatus(String status) {
-        return loadDataTransaksi(null, status);
+    public String getTglWajib(int idLog) {
+        String tgl = "";
+        try {
+            Connection conn = KoneksiDB.configDB();
+
+            String sql = "SELECT DATE_ADD(tgl_pinjam, INTERVAL durasi DAY) as tgl_wajib FROM peminjaman WHERE id_log = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, idLog);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                tgl = rs.getString("tgl_wajib");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tgl;
     }
 
     public void pinjamBuku(String idAnggota, String idBuku, int durasi) {
@@ -127,7 +135,7 @@ public class TransaksiController {
             conn = KoneksiDB.configDB();
             conn.setAutoCommit(false);
 
-            String sqlGet = "SELECT tgl_pinjam, id_buku FROM peminjaman WHERE id_log = ? AND status = 'Dipinjam'";
+            String sqlGet = "SELECT tgl_pinjam, id_buku, durasi FROM peminjaman WHERE id_log = ? AND status = 'Dipinjam'";
             PreparedStatement pstGet = conn.prepareStatement(sqlGet);
             pstGet.setInt(1, idLog);
             ResultSet rs = pstGet.executeQuery();
@@ -135,10 +143,12 @@ public class TransaksiController {
             if (rs.next()) {
                 Date tglPinjamSQL = rs.getDate("tgl_pinjam");
                 String idBuku = rs.getString("id_buku");
+                int durasi = rs.getInt("durasi");
 
                 LocalDate tglPinjam = tglPinjamSQL.toLocalDate();
                 LocalDate tglKembali = LocalDate.now();
-                LocalDate jatuhTempo = tglPinjam.plusDays(7);
+
+                LocalDate jatuhTempo = tglPinjam.plusDays(durasi);
 
                 long denda = 0;
                 long hariTelat = ChronoUnit.DAYS.between(jatuhTempo, tglKembali);
@@ -161,8 +171,8 @@ public class TransaksiController {
 
                 conn.commit();
 
-                String pesan = "Buku Dikembalikan.\nDenda: Rp " + denda;
-                JOptionPane.showMessageDialog(null, pesan);
+                JOptionPane.showMessageDialog(null, "Pengembalian Berhasil Disimpan!");
+
             } else {
                 JOptionPane.showMessageDialog(null, "Data tidak ditemukan atau buku sudah dikembalikan.");
             }
