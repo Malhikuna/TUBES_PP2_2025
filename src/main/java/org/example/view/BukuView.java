@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class BukuView extends JFrame {
+    public DefaultTableModel model;
     // Komponen Header
     private JRadioButton rbSemua, rbDipinjam, rbKembali;
     private JTextField txtSearch;

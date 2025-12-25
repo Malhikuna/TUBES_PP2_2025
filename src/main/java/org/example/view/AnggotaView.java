@@ -6,6 +6,7 @@ import java.awt.*;
 
 public class AnggotaView extends JFrame {
     // Komponen Header
+    public DefaultTableModel model;
     private JRadioButton rbSemua, rbAktif, rbTidakAktif;
     private ButtonGroup bgStatus;
     private JTextField txtSearch;
