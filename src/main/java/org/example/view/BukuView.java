@@ -18,37 +18,16 @@ public class BukuView extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        initComponents();
-        this.controller = new BukuController(this);
-    }
+        // 1. Header (Pencarian & Filter)
+        initHeader();
 
-    private void initComponents() {
-        // Header
-        JPanel pnlHeader = new JPanel(new BorderLayout());
-        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        rbSemua = new JRadioButton("Semua", true);
-        rbDipinjam = new JRadioButton("Sedang Dipinjam");
-        rbKembali = new JRadioButton("Sudah Kembali");
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(rbSemua); bg.add(rbDipinjam); bg.add(rbKembali);
+        // 2. Panel Tengah (Form Input & Tabel)
+        JPanel pnlCenter = new JPanel(new BorderLayout(10, 10));
         
-        pnlFilter.add(new JLabel("Status: "));
-        pnlFilter.add(rbSemua); pnlFilter.add(rbDipinjam); pnlFilter.add(rbKembali);
-
-        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        txtCari = new JTextField(15);
-        pnlSearch.add(new JLabel("Cari Judul: "));
-        pnlSearch.add(txtCari);
-        pnlHeader.add(pnlFilter, BorderLayout.WEST);
-        pnlHeader.add(pnlSearch, BorderLayout.EAST);
-
-        // Tabel sesuai kriteria (ID Log | Nama Peminjam | Judul Buku | Tgl Pinjam | Tgl Kembali | Status)
-        model = new DefaultTableModel(new String[]{"ID Log", "Nama Peminjam", "Judul Buku", "Tgl Pinjam", "Tgl Kembali", "Status"}, 0);
-        table = new JTable(model);
-
-        // Form Input
-        JPanel pnlInput = new JPanel(new GridLayout(5, 2, 5, 5));
-        pnlInput.setPreferredSize(new Dimension(300, 200));
+        // Perbaikan: Pakai GridBagLayout agar form tidak "penyok" saat jendela diperbesar
+        JPanel pnlInput = new JPanel(new GridLayout(3, 4, 10, 10)); 
+        pnlInput.setBorder(BorderFactory.createTitledBorder("Form Input Data Buku"));
+        
         txtIdBuku = new JTextField("Auto"); txtIdBuku.setEditable(false);
         txtJudul = new JTextField();
         txtPengarang = new JTextField();
@@ -61,7 +40,43 @@ public class BukuView extends JPanel {
         pnlInput.add(new JLabel("Kategori:")); pnlInput.add(txtKategori);
         pnlInput.add(new JLabel("Stok:")); pnlInput.add(spnStok);
 
-        // Buttons
+        // PERBAIKAN: Nama kolom disesuaikan dengan DATA BUKU
+        model = new DefaultTableModel(new String[]{"No", "ID Buku", "Judul", "Pengarang", "Kategori", "Stok"}, 0);
+        table = new JTable(model);
+        
+        pnlCenter.add(pnlInput, BorderLayout.NORTH);
+        pnlCenter.add(new JScrollPane(table), BorderLayout.CENTER);
+        add(pnlCenter, BorderLayout.CENTER);
+
+        // 3. Panel Bawah (Tombol CRUD)
+        initButtons();
+
+        // Hubungkan ke Controller
+        this.controller = new BukuController(this);
+    }
+
+    private void initHeader() {
+        JPanel pnlHeader = new JPanel(new BorderLayout());
+        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rbSemua = new JRadioButton("Semua", true);
+        rbDipinjam = new JRadioButton("Sedang Dipinjam");
+        rbKembali = new JRadioButton("Sudah Kembali");
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(rbSemua); bg.add(rbDipinjam); bg.add(rbKembali);
+        pnlFilter.add(new JLabel("Status: "));
+        pnlFilter.add(rbSemua); pnlFilter.add(rbDipinjam); pnlFilter.add(rbKembali);
+
+        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        txtCari = new JTextField(15);
+        pnlSearch.add(new JLabel("Cari Judul: "));
+        pnlSearch.add(txtCari);
+        
+        pnlHeader.add(pnlFilter, BorderLayout.WEST);
+        pnlHeader.add(pnlSearch, BorderLayout.EAST);
+        add(pnlHeader, BorderLayout.NORTH);
+    }
+
+    private void initButtons() {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnTambah = new JButton("Tambah");
         btnUbah = new JButton("Ubah");
@@ -69,10 +84,6 @@ public class BukuView extends JPanel {
         btnClear = new JButton("Clear");
         pnlButtons.add(btnTambah); pnlButtons.add(btnUbah); 
         pnlButtons.add(btnHapus); pnlButtons.add(btnClear);
-
-        add(pnlHeader, BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-        add(pnlInput, BorderLayout.WEST);
         add(pnlButtons, BorderLayout.SOUTH);
     }
 }
