@@ -23,10 +23,88 @@ public class BukuController {
 
 
     private void listener() {
-// isi disini gess
+        // 1. Aksi Tombol TAMBAH
+        view.btnTambah.addActionListener(e -> {
+            String judul = view.txtJudul.getText();
+            String pengarang = view.txtPengarang.getText();
+            String kategori = view.txtKategori.getText();
+            int stok = (int) view.spnStok.getValue();
+
+            if (judul.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Judul tidak boleh kosong!");
+                return;
+            }
+
+            tambahBuku(null, judul, pengarang, kategori, stok);
+            loadDataBuku(null);
+            clearForm();
+        });
+
+        // 2. Aksi Tombol UBAH
+        view.btnUbah.addActionListener(e -> {
+            int row = view.table.getSelectedRow();
+            if (row != -1) {
+                String id = view.model.getValueAt(row, 1).toString();
+                String judul = view.txtJudul.getText();
+                String pengarang = view.txtPengarang.getText();
+                String kategori = view.txtKategori.getText();
+                int stok = (int) view.spnStok.getValue();
+
+                ubahBuku(id, judul, pengarang, kategori, stok);
+                loadDataBuku(null);
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(view, "Pilih baris yang ingin diubah!");
+            }
+        });
+
+        // 3. Aksi Tombol HAPUS
+        view.btnHapus.addActionListener(e -> {
+            int row = view.table.getSelectedRow();
+            if (row != -1) {
+                String id = view.model.getValueAt(row, 1).toString();
+                int confirm = JOptionPane.showConfirmDialog(view, "Hapus buku ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    hapusBuku(id);
+                    loadDataBuku(null);
+                    clearForm();
+                }
+            } else {
+                JOptionPane.showMessageDialog(view, "Pilih baris yang ingin dihapus!");
+            }
+        });
+
+        // 4. Aksi Tombol CLEAR
+        view.btnClear.addActionListener(e -> clearForm());
+
+        // 5. Sinkronisasi Tabel ke Form
+        view.table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && view.table.getSelectedRow() != -1) {
+                int row = view.table.getSelectedRow();
+                view.txtIdBuku.setText(view.model.getValueAt(row, 1).toString());
+                view.txtJudul.setText(view.model.getValueAt(row, 2).toString());
+                view.txtPengarang.setText(view.model.getValueAt(row, 3).toString());
+                view.txtKategori.setText(view.model.getValueAt(row, 4).toString());
+                view.spnStok.setValue(Integer.parseInt(view.model.getValueAt(row, 5).toString()));
+            }
+        });
+
+        // 6. Pencarian Real-time
+        view.txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                loadDataBuku(view.txtCari.getText());
+            }
+        });
     }
-
-
+        private void clearForm() {
+            view.txtIdBuku.setText("Auto");
+            view.txtJudul.setText("");
+            view.txtPengarang.setText("");
+            view.txtKategori.setText("");
+            view.spnStok.setValue(0);
+            view.table.clearSelection();
+}
 
     public void loadDataBuku(String kataKunci) {
         DefaultTableModel tableModel = view.model;
