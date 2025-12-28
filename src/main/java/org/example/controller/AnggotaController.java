@@ -2,6 +2,7 @@ package org.example.controller;
 
 
 import org.example.KoneksiDB;
+import org.example.util.GeneratorID;
 import org.example.view.AnggotaView;
 
 
@@ -23,12 +24,61 @@ public class AnggotaController {
 
 
     private void listener() {
-// isi disini gess
+        // Tombol TAMBAH
+        view.btnTambah.addActionListener(e -> {
+            String id = GeneratorID.generateAnggota(view.model);
+            String nama = view.txtNama.getText();
+            String telp = view.txtTelp.getText();
+            String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
+            
+            tambahAnggota(id, nama, telp, status);
+            loadDataAnggota("", "ASC");
+            clearForm(); 
+        });
+
+        // Tombol UBAH
+        view.btnUbah.addActionListener(e -> {
+            int row = view.table.getSelectedRow();
+            if (row != -1) {
+                String id = view.model.getValueAt(row, 0).toString();
+                ubahAnggota(id, view.txtNama.getText(), view.txtTelp.getText(), 
+                            view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif");
+                loadDataAnggota("", "ASC");
+                clearForm();
+            }
+        });
+
+        // Tombol HAPUS
+        view.btnHapus.addActionListener(e -> {
+            int row = view.table.getSelectedRow();
+            if (row != -1) {
+                String id = view.model.getValueAt(row, 0).toString();
+                hapusAnggota(id);
+                loadDataAnggota("", "ASC");
+                clearForm();
+            }
+        });
+
+        // Tombol CLEAR
+        view.btnClear.addActionListener(e -> clearForm());
+        
+        // Sinkronisasi Tabel ke Form 
+        view.table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && view.table.getSelectedRow() != -1) {
+                int row = view.table.getSelectedRow();
+                view.txtId.setText(view.model.getValueAt(row, 0).toString());
+                view.txtNama.setText(view.model.getValueAt(row, 1).toString());
+                view.txtTelp.setText(view.model.getValueAt(row, 2).toString());
+            }
+        });
     }
-
-
-
-
+    private void clearForm() {
+        view.txtId.setText(GeneratorID.generateAnggota(view.model));
+        view.txtNama.setText("");
+        view.txtTelp.setText("");
+        view.rbSemua.setSelected(true);
+        view.table.clearSelection();
+    }
 
 
     public void loadDataAnggota(String kataKunci, String sortOrder) {
@@ -72,9 +122,9 @@ public class AnggotaController {
     }
 
     private void cariData() {
-//        String kataKunci = view.txtCari.getText();
-//        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
-//        loadDataAnggpota(kataKunci, sortOrder);
+        String kataKunci = view.txtCari.getText();
+        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
+        loadDataAnggota(kataKunci, sortOrder);
 //         ini tinggal pake ya
     }
 

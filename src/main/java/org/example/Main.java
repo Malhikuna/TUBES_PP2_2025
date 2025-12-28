@@ -7,7 +7,8 @@ import javax.swing.SwingUtilities;
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            LoginView frame = new LoginView();
+//            LoginView frame = new LoginView();
+            SideBarView frame = new SideBarView();
             frame.setVisible(true);
         });
     }

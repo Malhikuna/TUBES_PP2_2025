@@ -1,129 +1,103 @@
 package org.example.view;
 
+import org.example.controller.AnggotaController;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class AnggotaView extends JFrame {
-    // Komponen Header
+public class AnggotaView extends JPanel {
     public DefaultTableModel model;
-    private JRadioButton rbSemua, rbAktif, rbTidakAktif;
-    private ButtonGroup bgStatus;
-    private JTextField txtSearch;
-
-    // Komponen Form Input
-    private JTextField txtIdAnggota, txtNama, txtNoTelp;
-
-    // Komponen Tombol
-    private JButton btnTambah, btnUbah, btnHapus, btnClear;
-
-    // Komponen Tabel
-    private JTable tabelAnggota;
-    private DefaultTableModel tableModel;
+    public JTable table;
+    public JTextField txtId, txtNama, txtTelp, txtCari;
+    public JRadioButton rbSemua, rbFilterAktif, rbFilterTidakAktif, rbAktif, rbTidakAktif;
+    public JButton btnTambah, btnUbah, btnHapus, btnClear;
+    private AnggotaController controller;
 
     public AnggotaView() {
-        setTitle("Halaman Anggota");
-        setSize(900, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // HEADER 
-        JPanel panelHeader = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // --- PANEL ATAS 
+        JPanel pnlAtas = new JPanel(new BorderLayout(10, 10));
+        
+        // Header (Filter & Search)
+        JPanel pnlHeader = new JPanel(new BorderLayout());
+        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
         rbSemua = new JRadioButton("Semua", true);
-        rbAktif = new JRadioButton("Aktif");
+        rbFilterAktif = new JRadioButton("Aktif");
+        rbFilterTidakAktif = new JRadioButton("Tidak Aktif");
+        ButtonGroup bg = new ButtonGroup();
+        bg.add(rbSemua); bg.add(rbFilterAktif); bg.add(rbFilterTidakAktif);
+        
+        pnlFilter.add(new JLabel("Status: "));
+        pnlFilter.add(rbSemua); pnlFilter.add(rbFilterAktif); pnlFilter.add(rbFilterTidakAktif);
+
+        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        txtCari = new JTextField(15);
+        pnlSearch.add(new JLabel("Cari Nama/ID: "));
+        pnlSearch.add(txtCari);
+        
+        pnlHeader.add(pnlFilter, BorderLayout.WEST);
+        pnlHeader.add(pnlSearch, BorderLayout.EAST);
+
+        //  Form Input
+        JPanel pnlInput = new JPanel(new GridBagLayout());
+        pnlInput.setBorder(BorderFactory.createTitledBorder("Form Input Anggota"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        txtId = new JTextField("Auto"); txtId.setEditable(false);
+        txtNama = new JTextField(20);
+        txtTelp = new JTextField(20);
+
+        rbAktif = new JRadioButton("Aktif", true);
         rbTidakAktif = new JRadioButton("Tidak Aktif");
-        bgStatus = new ButtonGroup();
-        bgStatus.add(rbSemua); bgStatus.add(rbAktif); bgStatus.add(rbTidakAktif);
-        
-        txtSearch = new JTextField(20);
-        
-        panelHeader.add(new JLabel("Filter Status: "));
-        panelHeader.add(rbSemua); panelHeader.add(rbAktif); panelHeader.add(rbTidakAktif);
-        panelHeader.add(new JLabel(" | Search: "));
-        panelHeader.add(txtSearch);
 
-        // FORM INPUT ANGGOTA & TOMBOL
-        JPanel panelKiri = new JPanel(new BorderLayout());
-        
-        // Panel Form Input
-        JPanel panelInput = new JPanel(new GridLayout(3, 2, 5, 5));
-        txtIdAnggota = new JTextField("Auto");
-        txtIdAnggota.setEditable(false); // Read Only
-        txtNama = new JTextField();
-        txtNoTelp = new JTextField();
+        ButtonGroup bgStatus = new ButtonGroup();
+        bgStatus.add(rbAktif);
+        bgStatus.add(rbTidakAktif);
 
-        panelInput.add(new JLabel("Id Anggota:")); panelInput.add(txtIdAnggota);
-        panelInput.add(new JLabel("Nama:"));       panelInput.add(txtNama);
-        panelInput.add(new JLabel("No Telp:"));   panelInput.add(txtNoTelp);
+        JPanel pnlStatus = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        pnlStatus.add(rbAktif);
+        pnlStatus.add(rbTidakAktif);
 
-        // Panel Tombol
-        JPanel panelTombol = new JPanel(new FlowLayout());
+        gbc.gridx = 0; gbc.gridy = 3;
+        pnlInput.add(new JLabel("Status:"), gbc);
+
+        gbc.gridx = 1;
+        pnlInput.add(pnlStatus, gbc);
+
+
+        gbc.gridx = 0; gbc.gridy = 0; pnlInput.add(new JLabel("ID Anggota:"), gbc);
+        gbc.gridx = 1; pnlInput.add(txtId, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; pnlInput.add(new JLabel("Nama:"), gbc);
+        gbc.gridx = 1; pnlInput.add(txtNama, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; pnlInput.add(new JLabel("No Telp:"), gbc);
+        gbc.gridx = 1; pnlInput.add(txtTelp, gbc);
+
+        pnlAtas.add(pnlHeader, BorderLayout.NORTH);
+        pnlAtas.add(pnlInput, BorderLayout.CENTER);
+
+        // PANEL TENGAH (Tabel) 
+        model = new DefaultTableModel(new String[]{"ID", "Nama", "No Telp", "Status"}, 0);
+        table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // PANEL BAWAH (Tombol CRUD)
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnTambah = new JButton("Tambah");
         btnUbah = new JButton("Ubah");
         btnHapus = new JButton("Hapus");
         btnClear = new JButton("Clear");
+        pnlButtons.add(btnTambah); pnlButtons.add(btnUbah); 
+        pnlButtons.add(btnHapus); pnlButtons.add(btnClear);
 
-        panelTombol.add(btnTambah);
-        panelTombol.add(btnUbah);
-        panelTombol.add(btnHapus);
-        panelTombol.add(btnClear);
-
-        panelKiri.add(panelInput, BorderLayout.NORTH);
-        panelKiri.add(panelTombol, BorderLayout.CENTER);
-
-        // TABEL (ID | Nama | No Telp | Status)
-        String[] kolom = {"ID", "Nama", "No Telp", "Status"};
-        tableModel = new DefaultTableModel(kolom, 0);
-        tabelAnggota = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(tabelAnggota);
-
-        add(panelHeader, BorderLayout.NORTH);
-        add(panelKiri, BorderLayout.WEST);
+        add(pnlAtas, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+        add(pnlButtons, BorderLayout.SOUTH);
 
-        // --- LOGIKA TOMBOL ---
-
-        // Tombol Tambah
-        btnTambah.addActionListener(e -> {
-            String status = rbAktif.isSelected() ? "Aktif" : (rbTidakAktif.isSelected() ? "Tidak Aktif" : "Aktif");
-            tableModel.addRow(new Object[]{
-                tableModel.getRowCount() + 1, 
-                txtNama.getText(), 
-                txtNoTelp.getText(), 
-                status
-            });
-        });
-
-        // Tombol Ubah
-        btnUbah.addActionListener(e -> {
-            int row = tabelAnggota.getSelectedRow();
-            if (row != -1) {
-                tableModel.setValueAt(txtNama.getText(), row, 1);
-                tableModel.setValueAt(txtNoTelp.getText(), row, 2);
-            }
-        });
-
-        // Tombol Hapus
-        btnHapus.addActionListener(e -> {
-            int row = tabelAnggota.getSelectedRow();
-            if (row != -1) {
-                tableModel.removeRow(row);
-            }
-        });
-
-        // Tombol Clear (Kosongkan Form Input)
-        btnClear.addActionListener(e -> {
-            txtIdAnggota.setText("Auto");
-            txtNama.setText("");
-            txtNoTelp.setText("");
-            rbSemua.setSelected(true);
-        });
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new AnggotaView().setVisible(true);
-        });
+        // Inisialisasi controller 
+        this.controller = new AnggotaController(this);
     }
 }

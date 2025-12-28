@@ -9,8 +9,8 @@ public class SideBarView extends JFrame {
     private CardLayout cardLayout;
     private DashboardView dashboardView;
     private PeminjamanView peminjamanView;
-    private PeminjamanView AnggotaView;
-    private PeminjamanView BukuView;
+    private AnggotaView anggotaView;
+    private BukuView bukuView;
 
     public SideBarView() {
         setTitle("Book & Arsip Highlight : Library Information Log");
@@ -65,14 +65,13 @@ public class SideBarView extends JFrame {
 
         dashboardView = new DashboardView();
         peminjamanView = new PeminjamanView();
-//        anggotaView = new AnggotaView();
-//        bukuView = new BukuView();
+        anggotaView = new AnggotaView();
+        bukuView = new BukuView();
 
         contentPanel.add(dashboardView, "Dashboard");
-//        contentPanel.add(new bukuView, "Buku");
-//        contentPanel.add(new anggotaView, "Anggota");
+        contentPanel.add(bukuView, "Buku");
+        contentPanel.add(anggotaView, "Anggota");
         contentPanel.add(peminjamanView, "Transaksi");
-
 
         btnDash.addActionListener(e -> {
             cardLayout.show(contentPanel, "Dashboard");
@@ -84,8 +83,13 @@ public class SideBarView extends JFrame {
             peminjamanView.refreshTable();
         });
 
-        btnBuku.addActionListener(e -> JOptionPane.showMessageDialog(this, "Fitur Master Buku belum dibuat!"));
-        btnAnggota.addActionListener(e -> JOptionPane.showMessageDialog(this, "Fitur Master Anggota belum dibuat!"));
+        btnAnggota.addActionListener(e -> {
+            cardLayout.show(contentPanel, "Anggota");
+        });
+
+        btnBuku.addActionListener(e -> {
+            cardLayout.show(contentPanel, "Buku");
+        });
 
         add(sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
