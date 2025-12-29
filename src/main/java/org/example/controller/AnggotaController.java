@@ -6,6 +6,7 @@ import org.example.util.GeneratorID;
 import org.example.view.AnggotaView;
 
 
+import java.awt.event.ActionListener;
 import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -18,7 +19,7 @@ public class AnggotaController {
         this.view = view;
 
         listener();
-        loadDataAnggota("", "ASC");;
+        loadDataAnggota("", "ASC", "Semua");;
 
     }
 
@@ -32,7 +33,7 @@ public class AnggotaController {
             String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
             
             tambahAnggota(id, nama, telp, status);
-            loadDataAnggota("", "ASC");
+            loadDataAnggota("", "ASC", "Semua");
             clearForm(); 
         });
 
@@ -43,7 +44,7 @@ public class AnggotaController {
                 String id = view.model.getValueAt(row, 0).toString();
                 ubahAnggota(id, view.txtNama.getText(), view.txtTelp.getText(), 
                             view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif");
-                loadDataAnggota("", "ASC");
+                loadDataAnggota("", "ASC", "Semua");
                 clearForm();
             }
         });
@@ -54,7 +55,7 @@ public class AnggotaController {
             if (row != -1) {
                 String id = view.model.getValueAt(row, 0).toString();
                 hapusAnggota(id);
-                loadDataAnggota("", "ASC");
+                loadDataAnggota("", "ASC", "Semua");
                 clearForm();
             }
         });
@@ -75,9 +76,25 @@ public class AnggotaController {
         view.txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                loadDataAnggota(view.txtCari.getText(), "ASC");
+                loadDataAnggota(view.txtCari.getText(), "ASC", "Semua");
             }
         });
+
+        ActionListener filterListener = e -> {
+            String status = "Semua";
+
+            if (view.rbFilterAktif.isSelected()) {
+                status = "Aktif";
+            } else if (view.rbFilterTidakAktif.isSelected()) {
+                status = "Tidak Aktif";
+            }
+
+            loadDataAnggota(view.txtCari.getText(), "ASC", status);
+        };
+
+        view.rbSemua.addActionListener(filterListener);
+        view.rbFilterAktif.addActionListener(filterListener);
+        view.rbFilterTidakAktif.addActionListener(filterListener);
     }
 
     private void clearForm() {
@@ -89,7 +106,7 @@ public class AnggotaController {
     }
 
 
-    public void loadDataAnggota(String kataKunci, String sortOrder) {
+    public void loadDataAnggota(String kataKunci, String sortOrder, String filterStatus) {
         DefaultTableModel tableModel = view.model;
         tableModel.setRowCount(0);
         Connection conn = null;
@@ -98,10 +115,14 @@ public class AnggotaController {
 
         try {
             conn = KoneksiDB.configDB();
-            StringBuilder sql = new StringBuilder("SELECT * FROM anggota");
+            StringBuilder sql = new StringBuilder("SELECT * FROM anggota WHERE 1=1");
+
+            if (filterStatus != null && !filterStatus.equals("Semua")) {
+                sql.append(" AND status_aktif = ?");
+            }
 
             if (kataKunci != null && !kataKunci.isEmpty()) {
-                sql.append(" WHERE nama LIKE ? OR id_anggota LIKE ?");
+                sql.append(" AND (nama LIKE ? OR id_anggota LIKE ?)");
             }
 
             if (sortOrder != null && !sortOrder.isEmpty()) {
@@ -110,19 +131,23 @@ public class AnggotaController {
 
             pst = conn.prepareStatement(sql.toString());
 
+            int paramIndex = 1;
+            if (filterStatus != null && !filterStatus.equals("Semua")) {
+                pst.setString(paramIndex++, filterStatus);
+            }
             if (kataKunci != null && !kataKunci.isEmpty()) {
-                pst.setString(1, "%" + kataKunci + "%");
-                pst.setString(2, "%" + kataKunci + "%");
+                pst.setString(paramIndex++, "%" + kataKunci + "%");
+                pst.setString(paramIndex++, "%" + kataKunci + "%");
             }
 
             res = pst.executeQuery();
             while (res.next()) {
                 tableModel.addRow(new Object[]{
                         res.getString("id_anggota"),
-                res.getString("nama"),
-                res.getString("no_telp"),
-                res.getString("status_aktif")
-            });
+                        res.getString("nama"),
+                        res.getString("no_telp"),
+                        res.getString("status_aktif")
+                });
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Gagal Load Data Anggota: " + e.getMessage());
@@ -132,8 +157,16 @@ public class AnggotaController {
     private void cariData() {
         String kataKunci = view.txtCari.getText();
         String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
-        loadDataAnggota(kataKunci, sortOrder);
-//         ini tinggal pake ya
+
+        // Logika mengambil status dari RadioButton di View
+        String filterStatus = "Semua";
+        if (view.rbAktif.isSelected()) {
+            filterStatus = "Aktif";
+        } else if (view.rbTidakAktif.isSelected()) {
+            filterStatus = "Tidak Aktif";
+        }
+
+        loadDataAnggota(kataKunci, sortOrder, filterStatus);
     }
 
 
