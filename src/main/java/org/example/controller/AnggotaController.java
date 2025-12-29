@@ -71,7 +71,15 @@ public class AnggotaController {
                 view.txtTelp.setText(view.model.getValueAt(row, 2).toString());
             }
         });
+
+        view.txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                loadDataAnggota(view.txtCari.getText(), "ASC");
+            }
+        });
     }
+
     private void clearForm() {
         view.txtId.setText(GeneratorID.generateAnggota(view.model));
         view.txtNama.setText("");

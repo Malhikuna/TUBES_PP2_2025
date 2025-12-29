@@ -11,7 +11,7 @@ public class AnggotaView extends JPanel {
     public JTextField txtId, txtNama, txtTelp, txtCari;
     public JRadioButton rbSemua, rbFilterAktif, rbFilterTidakAktif, rbAktif, rbTidakAktif;
     public JButton btnTambah, btnUbah, btnHapus, btnClear;
-    private AnggotaController controller;
+    public JCheckBox checkSort;
 
     public AnggotaView() {
         setLayout(new BorderLayout(10, 10));
@@ -34,8 +34,11 @@ public class AnggotaView extends JPanel {
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtCari = new JTextField(15);
+        checkSort = new JCheckBox("Z-A");
+
         pnlSearch.add(new JLabel("Cari Nama/ID: "));
         pnlSearch.add(txtCari);
+        pnlSearch.add(checkSort);
         
         pnlHeader.add(pnlFilter, BorderLayout.WEST);
         pnlHeader.add(pnlSearch, BorderLayout.EAST);
@@ -98,6 +101,6 @@ public class AnggotaView extends JPanel {
         add(pnlButtons, BorderLayout.SOUTH);
 
         // Inisialisasi controller 
-        this.controller = new AnggotaController(this);
+        AnggotaController controller = new AnggotaController(this);
     }
 }

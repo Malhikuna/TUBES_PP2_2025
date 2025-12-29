@@ -10,9 +10,8 @@ public class BukuView extends JPanel {
     public JTable table;
     public JTextField txtIdBuku, txtJudul, txtPengarang, txtKategori, txtCari;
     public JSpinner spnStok;
-    public JRadioButton rbSemua, rbDipinjam, rbKembali;
     public JButton btnTambah, btnUbah, btnHapus, btnClear;
-    private BukuController controller;
+    public JCheckBox checkSort;
 
     public BukuView() {
         setLayout(new BorderLayout(10, 10));
@@ -46,27 +45,21 @@ public class BukuView extends JPanel {
 
         initButtons();
 
-        this.controller = new BukuController(this);
+        BukuController controller = new BukuController(this);
     }
 
     private void initHeader() {
         JPanel pnlHeader = new JPanel(new BorderLayout());
-        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        rbSemua = new JRadioButton("Semua", true);
-        rbDipinjam = new JRadioButton("Sedang Dipinjam");
-        rbKembali = new JRadioButton("Sudah Kembali");
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(rbSemua); bg.add(rbDipinjam); bg.add(rbKembali);
-        pnlFilter.add(new JLabel("Status: "));
-        pnlFilter.add(rbSemua); pnlFilter.add(rbDipinjam); pnlFilter.add(rbKembali);
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtCari = new JTextField(15);
+        checkSort = new JCheckBox("Z-A");
+
         pnlSearch.add(new JLabel("Cari Judul: "));
         pnlSearch.add(txtCari);
+        pnlSearch.add(checkSort);
         
-        pnlHeader.add(pnlFilter, BorderLayout.WEST);
-        pnlHeader.add(pnlSearch, BorderLayout.EAST);
+        pnlHeader.add(pnlSearch, BorderLayout.WEST);
         add(pnlHeader, BorderLayout.NORTH);
     }
 

@@ -125,6 +125,7 @@ public class BukuController {
                 sql = "SELECT * FROM buku WHERE judul LIKE ? OR pengarang LIKE ?";
                 pst = conn.prepareStatement(sql);
                 pst.setString(1, "%" + kataKunci + "%");
+                pst.setString(2, "%" + kataKunci + "%");
             }
 
 
@@ -154,8 +155,8 @@ public class BukuController {
 
 
     private void cariData() {
-//        String kataKunci = view.txtCari.getText();
-//        loadDataBuku(kataKunci);
+        String kataKunci = view.txtCari.getText();
+        loadDataBuku(kataKunci);
 //        tinngal pake aja ya gaess
 
     }
