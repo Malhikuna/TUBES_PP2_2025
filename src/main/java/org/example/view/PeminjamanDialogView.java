@@ -50,14 +50,26 @@ public class PeminjamanDialogView extends JDialog {
         btnSimpan.addActionListener(e -> {
             String idA = mapAnggota.get(cbAnggota.getSelectedItem().toString());
             String idB = mapBuku.get(cbBuku.getSelectedItem().toString());
+            String judulBuku = cbBuku.getSelectedItem().toString();
 
-            int durasi = Integer.parseInt(txtDurasi.getText()); //
+            try{
+                int durasi = Integer.parseInt(txtDurasi.getText());
 
-            controller.pinjamBuku(idA, idB, durasi);
-            dispose();
+                if (controller.isBukuSedangDipinjam(idA, idB)) {
+                    JOptionPane.showMessageDialog(this,
+                            "Anggota ini masih meminjam buku '" + judulBuku + "' dan belum dikembalikan!\n" +
+                                    "Selesaikan pengembalian terlebih dahulu untuk meminjam buku yang sama.",
+                            "Peringatan Validasi",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                controller.pinjamBuku(idA, idB, durasi);
+                dispose();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Durasi harus berupa angka!");
+            }
         });
-
-        btnBatal.addActionListener(e -> dispose());
     }
 
     private void loadDataCB() {
