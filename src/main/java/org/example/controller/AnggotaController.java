@@ -2,6 +2,7 @@ package org.example.controller;
 
 
 import org.example.KoneksiDB;
+import org.example.util.GeneratorID;
 import org.example.view.AnggotaView;
 
 
@@ -25,11 +26,12 @@ public class AnggotaController {
     private void listener() {
         // Tombol TAMBAH
         view.btnTambah.addActionListener(e -> {
+            String id = GeneratorID.generateAnggota(view.model);
             String nama = view.txtNama.getText();
             String telp = view.txtTelp.getText();
             String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
             
-            tambahAnggota(null, nama, telp, status);
+            tambahAnggota(id, nama, telp, status);
             loadDataAnggota("", "ASC");
             clearForm(); 
         });
@@ -69,9 +71,17 @@ public class AnggotaController {
                 view.txtTelp.setText(view.model.getValueAt(row, 2).toString());
             }
         });
+
+        view.txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                loadDataAnggota(view.txtCari.getText(), "ASC");
+            }
+        });
     }
+
     private void clearForm() {
-        view.txtId.setText("Auto");
+        view.txtId.setText(GeneratorID.generateAnggota(view.model));
         view.txtNama.setText("");
         view.txtTelp.setText("");
         view.rbSemua.setSelected(true);
@@ -120,9 +130,9 @@ public class AnggotaController {
     }
 
     private void cariData() {
-//        String kataKunci = view.txtCari.getText();
-//        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
-//        loadDataAnggpota(kataKunci, sortOrder);
+        String kataKunci = view.txtCari.getText();
+        String sortOrder = view.checkSort.isSelected() ? "DESC" : "ASC";
+        loadDataAnggota(kataKunci, sortOrder);
 //         ini tinggal pake ya
     }
 

@@ -2,6 +2,7 @@
 package org.example.controller;
 
 import org.example.KoneksiDB;
+import org.example.util.GeneratorID;
 import org.example.view.BukuView;
 
 import java.sql.*;
@@ -35,7 +36,7 @@ public class BukuController {
                 return;
             }
 
-            tambahBuku(null, judul, pengarang, kategori, stok);
+            tambahBuku(GeneratorID.generateBuku(view.model), judul, pengarang, kategori, stok);
             loadDataBuku(null);
             clearForm();
         });
@@ -98,7 +99,7 @@ public class BukuController {
         });
     }
         private void clearForm() {
-            view.txtIdBuku.setText("Auto");
+            view.txtIdBuku.setText(GeneratorID.generateBuku(view.model));
             view.txtJudul.setText("");
             view.txtPengarang.setText("");
             view.txtKategori.setText("");
@@ -124,6 +125,7 @@ public class BukuController {
                 sql = "SELECT * FROM buku WHERE judul LIKE ? OR pengarang LIKE ?";
                 pst = conn.prepareStatement(sql);
                 pst.setString(1, "%" + kataKunci + "%");
+                pst.setString(2, "%" + kataKunci + "%");
             }
 
 
@@ -153,8 +155,8 @@ public class BukuController {
 
 
     private void cariData() {
-//        String kataKunci = view.txtCari.getText();
-//        loadDataBuku(kataKunci);
+        String kataKunci = view.txtCari.getText();
+        loadDataBuku(kataKunci);
 //        tinngal pake aja ya gaess
 
     }

@@ -10,6 +10,8 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.text.MessageFormat;
+import java.awt.print.PrinterException;
 
 public class PeminjamanView extends JPanel {
     private JTable tableLog;
@@ -17,7 +19,7 @@ public class PeminjamanView extends JPanel {
     private TableRowSorter<DefaultTableModel> rowSorter;
     private JTextField txtSearch;
     private JRadioButton rbSemua, rbDipinjam, rbKembali;
-    private JButton btnPinjamBaru, btnKembalikan, btnHapus;
+    private JButton btnPinjamBaru, btnKembalikan, btnHapus, btnCetak;
     private TransaksiController transaksiController;
 
     public PeminjamanView() {
@@ -129,10 +131,15 @@ public class PeminjamanView extends JPanel {
         btnPinjamBaru = new JButton("+ Pinjam Baru");
         btnKembalikan = new JButton("Kembalikan Buku");
         btnHapus = new JButton("Hapus Log");
+        btnCetak = new JButton("Export PDF");
+        btnCetak.setBackground(new Color(52, 152, 219));
+        btnCetak.setForeground(Color.WHITE);
 
         pnlButtons.add(btnPinjamBaru);
         pnlButtons.add(btnKembalikan);
         pnlButtons.add(btnHapus);
+        pnlButtons.add(btnCetak);
+
         add(pnlButtons, BorderLayout.SOUTH);
 
         btnPinjamBaru.addActionListener(e -> {
@@ -181,6 +188,27 @@ public class PeminjamanView extends JPanel {
                 JOptionPane.showMessageDialog(this, "Pilih data yang ingin dihapus!");
             }
         });
+
+        btnCetak.addActionListener(e -> cetakLaporan());
+    }
+
+    private void cetakLaporan() {
+        try {
+            MessageFormat header = new MessageFormat("Laporan Riwayat Peminjaman Perpustakaan");
+
+            MessageFormat footer = new MessageFormat("Halaman {0,number,integer}");
+
+            boolean complete = tableLog.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+
+            if (complete) {
+                JOptionPane.showMessageDialog(this, "Sukses Export ke PDF!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Proses dibatalkan.");
+            }
+
+        } catch (PrinterException pe) {
+            JOptionPane.showMessageDialog(this, "Gagal Mencetak: " + pe.getMessage());
+        }
     }
 
     private void setupSelectionListener() {

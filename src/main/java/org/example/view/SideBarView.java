@@ -9,8 +9,8 @@ public class SideBarView extends JFrame {
     private CardLayout cardLayout;
     private DashboardView dashboardView;
     private PeminjamanView peminjamanView;
-    private PeminjamanView AnggotaView;
-    private PeminjamanView BukuView;
+    private AnggotaView anggotaView;
+    private BukuView bukuView;
 
     public SideBarView() {
         setTitle("Book & Arsip Highlight : Library Information Log");
@@ -41,19 +41,37 @@ public class SideBarView extends JFrame {
         sidebar.add(btnAnggota);
         sidebar.add(btnTransaksi);
 
+        sidebar.add(Box.createVerticalGlue());
+
+        JButton btnLogout = new JButton("Logout");
+        btnLogout.setMaximumSize(new Dimension(180, 40));
+        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnLogout.setBackground(new Color(192, 57, 43));
+        btnLogout.setForeground(Color.WHITE);
+
+        btnLogout.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, "Yakin mau keluar?", "Logout", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                this.dispose();
+                new LoginView().setVisible(true);
+            }
+        });
+
+        sidebar.add(btnLogout);
+        sidebar.add(Box.createRigidArea(new Dimension(0, 20)));
+
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
 
         dashboardView = new DashboardView();
         peminjamanView = new PeminjamanView();
-//        anggotaView = new AnggotaView();
-//        bukuView = new BukuView();
+        anggotaView = new AnggotaView();
+        bukuView = new BukuView();
 
         contentPanel.add(dashboardView, "Dashboard");
-//        contentPanel.add(new bukuView, "Buku");
-//        contentPanel.add(new anggotaView, "Anggota");
+        contentPanel.add(bukuView, "Buku");
+        contentPanel.add(anggotaView, "Anggota");
         contentPanel.add(peminjamanView, "Transaksi");
-
 
         btnDash.addActionListener(e -> {
             cardLayout.show(contentPanel, "Dashboard");
@@ -65,8 +83,13 @@ public class SideBarView extends JFrame {
             peminjamanView.refreshTable();
         });
 
-        btnBuku.addActionListener(e -> JOptionPane.showMessageDialog(this, "Fitur Master Buku belum dibuat!"));
-        btnAnggota.addActionListener(e -> JOptionPane.showMessageDialog(this, "Fitur Master Anggota belum dibuat!"));
+        btnAnggota.addActionListener(e -> {
+            cardLayout.show(contentPanel, "Anggota");
+        });
+
+        btnBuku.addActionListener(e -> {
+            cardLayout.show(contentPanel, "Buku");
+        });
 
         add(sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);

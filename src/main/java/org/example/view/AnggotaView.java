@@ -9,9 +9,9 @@ public class AnggotaView extends JPanel {
     public DefaultTableModel model;
     public JTable table;
     public JTextField txtId, txtNama, txtTelp, txtCari;
-    public JRadioButton rbSemua, rbAktif, rbTidakAktif;
+    public JRadioButton rbSemua, rbFilterAktif, rbFilterTidakAktif, rbAktif, rbTidakAktif;
     public JButton btnTambah, btnUbah, btnHapus, btnClear;
-    private AnggotaController controller;
+    public JCheckBox checkSort;
 
     public AnggotaView() {
         setLayout(new BorderLayout(10, 10));
@@ -24,18 +24,21 @@ public class AnggotaView extends JPanel {
         JPanel pnlHeader = new JPanel(new BorderLayout());
         JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
         rbSemua = new JRadioButton("Semua", true);
-        rbAktif = new JRadioButton("Aktif");
-        rbTidakAktif = new JRadioButton("Tidak Aktif");
+        rbFilterAktif = new JRadioButton("Aktif");
+        rbFilterTidakAktif = new JRadioButton("Tidak Aktif");
         ButtonGroup bg = new ButtonGroup();
-        bg.add(rbSemua); bg.add(rbAktif); bg.add(rbTidakAktif);
+        bg.add(rbSemua); bg.add(rbFilterAktif); bg.add(rbFilterTidakAktif);
         
         pnlFilter.add(new JLabel("Status: "));
-        pnlFilter.add(rbSemua); pnlFilter.add(rbAktif); pnlFilter.add(rbTidakAktif);
+        pnlFilter.add(rbSemua); pnlFilter.add(rbFilterAktif); pnlFilter.add(rbFilterTidakAktif);
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtCari = new JTextField(15);
+        checkSort = new JCheckBox("Z-A");
+
         pnlSearch.add(new JLabel("Cari Nama/ID: "));
         pnlSearch.add(txtCari);
+        pnlSearch.add(checkSort);
         
         pnlHeader.add(pnlFilter, BorderLayout.WEST);
         pnlHeader.add(pnlSearch, BorderLayout.EAST);
@@ -50,6 +53,24 @@ public class AnggotaView extends JPanel {
         txtId = new JTextField("Auto"); txtId.setEditable(false);
         txtNama = new JTextField(20);
         txtTelp = new JTextField(20);
+
+        rbAktif = new JRadioButton("Aktif", true);
+        rbTidakAktif = new JRadioButton("Tidak Aktif");
+
+        ButtonGroup bgStatus = new ButtonGroup();
+        bgStatus.add(rbAktif);
+        bgStatus.add(rbTidakAktif);
+
+        JPanel pnlStatus = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        pnlStatus.add(rbAktif);
+        pnlStatus.add(rbTidakAktif);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        pnlInput.add(new JLabel("Status:"), gbc);
+
+        gbc.gridx = 1;
+        pnlInput.add(pnlStatus, gbc);
+
 
         gbc.gridx = 0; gbc.gridy = 0; pnlInput.add(new JLabel("ID Anggota:"), gbc);
         gbc.gridx = 1; pnlInput.add(txtId, gbc);
@@ -80,6 +101,6 @@ public class AnggotaView extends JPanel {
         add(pnlButtons, BorderLayout.SOUTH);
 
         // Inisialisasi controller 
-        this.controller = new AnggotaController(this);
+        AnggotaController controller = new AnggotaController(this);
     }
 }
