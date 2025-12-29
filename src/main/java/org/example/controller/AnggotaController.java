@@ -6,6 +6,7 @@ import org.example.util.GeneratorID;
 import org.example.view.AnggotaView;
 
 
+import java.awt.event.ActionListener;
 import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -18,7 +19,7 @@ public class AnggotaController {
         this.view = view;
 
         listener();
-        loadDataAnggota("", "ASC", 'semua');;
+        loadDataAnggota("", "ASC", "Semua");;
 
     }
 
@@ -32,7 +33,7 @@ public class AnggotaController {
             String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
             
             tambahAnggota(id, nama, telp, status);
-            loadDataAnggota("", "ASC", 'Semua');
+            loadDataAnggota("", "ASC", "Semua");
             clearForm(); 
         });
 
@@ -43,7 +44,7 @@ public class AnggotaController {
                 String id = view.model.getValueAt(row, 0).toString();
                 ubahAnggota(id, view.txtNama.getText(), view.txtTelp.getText(), 
                             view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif");
-                loadDataAnggota("", "ASC", 'Semua');
+                loadDataAnggota("", "ASC", "Semua");
                 clearForm();
             }
         });
@@ -54,7 +55,7 @@ public class AnggotaController {
             if (row != -1) {
                 String id = view.model.getValueAt(row, 0).toString();
                 hapusAnggota(id);
-                loadDataAnggota("", "ASC", 'Semua');
+                loadDataAnggota("", "ASC", "Semua");
                 clearForm();
             }
         });
@@ -75,9 +76,25 @@ public class AnggotaController {
         view.txtCari.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                loadDataAnggota(view.txtCari.getText(), "ASC", 'Semua');
+                loadDataAnggota(view.txtCari.getText(), "ASC", "Semua");
             }
         });
+
+        ActionListener filterListener = e -> {
+            String status = "Semua";
+
+            if (view.rbFilterAktif.isSelected()) {
+                status = "Aktif";
+            } else if (view.rbFilterTidakAktif.isSelected()) {
+                status = "Tidak Aktif";
+            }
+
+            loadDataAnggota(view.txtCari.getText(), "ASC", status);
+        };
+
+        view.rbSemua.addActionListener(filterListener);
+        view.rbFilterAktif.addActionListener(filterListener);
+        view.rbFilterTidakAktif.addActionListener(filterListener);
     }
 
     private void clearForm() {
