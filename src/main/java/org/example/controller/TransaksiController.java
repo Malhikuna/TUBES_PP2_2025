@@ -182,4 +182,25 @@ public class TransaksiController {
             JOptionPane.showMessageDialog(null, "Gagal Mengembalikan: " + e.getMessage());
         }
     }
+
+    public boolean isBukuSedangDipinjam(String idAnggota, String idBuku) {
+        boolean sedangDipinjam = false;
+        try {
+            Connection conn = KoneksiDB.configDB();
+            String sql = "SELECT COUNT(*) FROM peminjaman WHERE id_anggota = ? AND id_buku = ? AND status = 'Dipinjam'";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, idAnggota);
+            pst.setString(2, idBuku);
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    sedangDipinjam = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sedangDipinjam;
+    }
 }
