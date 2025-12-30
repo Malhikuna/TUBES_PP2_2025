@@ -57,9 +57,8 @@ public class PeminjamanDialogView extends JDialog {
 
                 if (controller.isBukuSedangDipinjam(idA, idB)) {
                     JOptionPane.showMessageDialog(this,
-                            "Anggota ini masih meminjam buku '" + judulBuku + "' dan belum dikembalikan!\n" +
-                                    "Selesaikan pengembalian terlebih dahulu untuk meminjam buku yang sama.",
-                            "Peringatan Validasi",
+                            "Anggota ini masih meminjam buku '" + judulBuku + "' dan belum dikembalikan!",
+                            "Peringatan",
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
