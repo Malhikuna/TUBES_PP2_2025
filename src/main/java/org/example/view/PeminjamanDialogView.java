@@ -49,7 +49,6 @@ public class PeminjamanDialogView extends JDialog {
         add(btnSimpan);
         add(btnBatal);
 
-        loadDataCB();
 
         cbKategori.addActionListener(e -> {
             String kategoriTerpilih = (String) cbKategori.getSelectedItem();
@@ -87,61 +86,5 @@ public class PeminjamanDialogView extends JDialog {
         btnBatal.addActionListener(e -> {
             dispose();
         });
-    }
-
-    private void loadDataCB() {
-        try (Connection conn = KoneksiDB.configDB()) {
-            Statement stm = conn.createStatement();
-
-            ResultSet rsA = stm.executeQuery("SELECT id_anggota, nama FROM anggota");
-            while (rsA.next()) {
-                String item = rsA.getString("nama");
-                cbAnggota.addItem(item);
-                mapAnggota.put(item, rsA.getString("id_anggota"));
-            }
-
-            cbKategori.removeAllItems();
-            cbKategori.addItem("Semua");
-            ResultSet rsK = stm.executeQuery("SELECT DISTINCT kategori FROM buku WHERE stok > 0 ORDER BY kategori ASC");
-            while (rsK.next()) {
-                String kat = rsK.getString("kategori");
-                if (kat != null && !kat.isEmpty()) {
-                    cbKategori.addItem(kat);
-                }
-            }
-
-            loadBukuByKategori("Semua");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void loadBukuByKategori(String kategori) {
-        cbBuku.removeAllItems();
-        mapBuku.clear();
-
-        try (Connection conn = KoneksiDB.configDB()) {
-            String sql;
-            PreparedStatement pst;
-
-            if (kategori == null || kategori.equals("Semua")) {
-                sql = "SELECT id_buku, judul FROM buku WHERE stok > 0";
-                pst = conn.prepareStatement(sql);
-            } else {
-                sql = "SELECT id_buku, judul FROM buku WHERE stok > 0 AND kategori = ?";
-                pst = conn.prepareStatement(sql);
-                pst.setString(1, kategori);
-            }
-
-            ResultSet rsB = pst.executeQuery();
-            while (rsB.next()) {
-                String item = rsB.getString("judul");
-                cbBuku.addItem(item);
-                mapBuku.put(item, rsB.getString("id_buku"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
