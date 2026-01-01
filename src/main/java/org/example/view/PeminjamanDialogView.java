@@ -45,7 +45,6 @@ public class PeminjamanDialogView extends JDialog {
         add(btnSimpan);
         add(btnBatal);
 
-        loadDataCB();
 
         btnSimpan.addActionListener(e -> {
             String idA = mapAnggota.get(cbAnggota.getSelectedItem().toString());
@@ -69,24 +68,5 @@ public class PeminjamanDialogView extends JDialog {
                 JOptionPane.showMessageDialog(this, "Durasi harus berupa angka!");
             }
         });
-    }
-
-    private void loadDataCB() {
-        try (Connection conn = KoneksiDB.configDB()) {
-            ResultSet rsA = conn.createStatement().executeQuery("SELECT id_anggota, nama FROM anggota");
-            while (rsA.next()) {
-                String item = rsA.getString("nama");
-                cbAnggota.addItem(item);
-                mapAnggota.put(item, rsA.getString("id_anggota"));
-            }
-            ResultSet rsB = conn.createStatement().executeQuery("SELECT id_buku, judul FROM buku WHERE stok > 0");
-            while (rsB.next()) {
-                String item = rsB.getString("judul");
-                cbBuku.addItem(item);
-                mapBuku.put(item, rsB.getString("id_buku"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

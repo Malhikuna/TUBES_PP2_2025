@@ -25,8 +25,6 @@ public class DashboardView extends JPanel {
         initStatCards();
 
         initTopTable();
-
-        loadDataDashboard();
     }
 
     private void initStatCards() {
@@ -84,45 +82,5 @@ public class DashboardView extends JPanel {
         return card;
     }
 
-    public void loadDataDashboard() {
-        try (Connection conn = KoneksiDB.configDB()) {
-            Statement st = conn.createStatement();
 
-            ResultSet rs1 = st.executeQuery("SELECT COUNT(*) FROM buku");
-            if (rs1.next()) {
-                lblTotalBuku.setText(rs1.getString(1));
-            }
-
-            ResultSet rs2 = st.executeQuery("SELECT COUNT(*) FROM anggota WHERE status_aktif = 'Aktif'");
-            if (rs2.next()) {
-                lblTotalAnggota.setText(rs2.getString(1));
-            }
-
-            ResultSet rs3 = st.executeQuery("SELECT COUNT(*) FROM peminjaman WHERE status = 'Dipinjam'");
-            if (rs3.next()) {
-                lblSedangDipinjam.setText(rs3.getString(1));
-            }
-
-            String sqlTop = "SELECT b.id_buku, b.judul, COUNT(p.id_buku) as jumlah " +
-                    "FROM peminjaman p " +
-                    "JOIN buku b ON p.id_buku = b.id_buku " +
-                    "GROUP BY b.id_buku, b.judul " +
-                    "ORDER BY jumlah DESC " +
-                    "LIMIT 5";
-
-            ResultSet rsTop = st.executeQuery(sqlTop);
-
-            tableModel.setRowCount(0);
-            while (rsTop.next()) {
-                tableModel.addRow(new Object[]{
-                        rsTop.getString("id_buku"),
-                        rsTop.getString("judul"),
-                        rsTop.getInt("jumlah") + " x Dipinjam"
-                });
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
