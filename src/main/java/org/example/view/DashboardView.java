@@ -1,14 +1,10 @@
 package org.example.view;
 
-import org.example.KoneksiDB;
-
+import org.example.controller.DashboardController;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 public class DashboardView extends JPanel {
 
@@ -18,13 +14,22 @@ public class DashboardView extends JPanel {
     private JTable tableTopBuku;
     private DefaultTableModel tableModel;
 
+    private DashboardController controller;
+
     public DashboardView() {
         setLayout(new BorderLayout(20, 20));
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         initStatCards();
-
         initTopTable();
+
+        this.controller = new DashboardController(this);
+    }
+
+    public void loadTopBooks() {
+        if (controller != null) {
+            controller.refreshDashboard();
+        }
     }
 
     private void initStatCards() {
@@ -82,5 +87,9 @@ public class DashboardView extends JPanel {
         return card;
     }
 
-
+    public void setTotalBuku(String text) { lblTotalBuku.setText(text); }
+    public void setTotalAnggota(String text) { lblTotalAnggota.setText(text); }
+    public void setSedangDipinjam(String text) { lblSedangDipinjam.setText(text); }
+    public void clearTable() { tableModel.setRowCount(0); }
+    public void addTableRow(Object[] rowData) { tableModel.addRow(rowData); }
 }

@@ -1,35 +1,24 @@
 package org.example.view;
 
-import org.example.KoneksiDB;
-import org.example.controller.TransaksiController;
-
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
-import java.util.HashMap;
 
 public class PeminjamanDialogView extends JDialog {
-    private JComboBox<String> cbAnggota, cbKategori, cbBuku;
+    private JComboBox<String> cbAnggota, cbBuku;
     private JTextField txtTgl, txtDurasi;
-    private HashMap<String, String> mapAnggota = new HashMap<>();
-    private HashMap<String, String> mapBuku = new HashMap<>();
-    private TransaksiController controller;
+    private JButton btnSimpan, btnBatal;
 
-    public PeminjamanDialogView(Frame owner, TransaksiController controller) {
+    public PeminjamanDialogView(Frame owner) {
         super(owner, "Tambah Peminjaman Baru", true);
-        this.controller = controller;
         setSize(400, 350);
         setLocationRelativeTo(owner);
-        setLayout(new GridLayout(6, 2, 10, 10));
+        setLayout(new GridLayout(5, 2, 10, 10));
 
         add(new JLabel(" Pilih Anggota:"));
         cbAnggota = new JComboBox<>();
         add(cbAnggota);
-
-        add(new JLabel("Pilih Kategori:"));
-        cbKategori = new JComboBox<>();
-        add(cbKategori);
 
         add(new JLabel(" Pilih Buku:"));
         cbBuku = new JComboBox<>();
@@ -44,47 +33,46 @@ public class PeminjamanDialogView extends JDialog {
         txtDurasi = new JTextField("7");
         add(txtDurasi);
 
-        JButton btnSimpan = new JButton("Simpan");
-        JButton btnBatal = new JButton("Batal");
+        btnSimpan = new JButton("Simpan");
+        btnBatal = new JButton("Batal");
         add(btnSimpan);
         add(btnBatal);
+    }
 
 
-        cbKategori.addActionListener(e -> {
-            String kategoriTerpilih = (String) cbKategori.getSelectedItem();
-            loadBukuByKategori(kategoriTerpilih);
-        });
+    public void addAnggotaItem(String nama) {
+        cbAnggota.addItem(nama);
+    }
 
-        if (cbBuku.getSelectedItem() == null || cbAnggota.getSelectedItem() == null) {
-            JOptionPane.showMessageDialog(this, "Anggota dan Buku harus dipilih!");
-            return;
-        }
+    public void addBukuItem(String judul) {
+        cbBuku.addItem(judul);
+    }
 
-        btnSimpan.addActionListener(e -> {
-            String idA = mapAnggota.get(cbAnggota.getSelectedItem().toString());
-            String idB = mapBuku.get(cbBuku.getSelectedItem().toString());
-            String judulBuku = cbBuku.getSelectedItem().toString();
+    public String getSelectedAnggota() {
+        return (String) cbAnggota.getSelectedItem();
+    }
 
-            try{
-                int durasi = Integer.parseInt(txtDurasi.getText());
+    public String getSelectedBuku() {
+        return (String) cbBuku.getSelectedItem();
+    }
 
-                if (controller.isBukuSedangDipinjam(idA, idB)) {
-                    JOptionPane.showMessageDialog(this,
-                            "Anggota ini masih meminjam buku '" + judulBuku + "' dan belum dikembalikan!",
-                            "Peringatan",
-                            JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+    public String getDurasi() {
+        return txtDurasi.getText();
+    }
 
-                controller.pinjamBuku(idA, idB, durasi);
-                dispose();
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Durasi harus berupa angka!");
-            }
-        });
+    public void setSimpanListener(ActionListener listener) {
+        btnSimpan.addActionListener(listener);
+    }
 
-        btnBatal.addActionListener(e -> {
-            dispose();
-        });
+    public void setBatalListener(ActionListener listener) {
+        btnBatal.addActionListener(listener);
+    }
+
+    public void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
+    }
+
+    public void showWarning(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Peringatan", JOptionPane.WARNING_MESSAGE);
     }
 }
