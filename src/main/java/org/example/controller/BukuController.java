@@ -157,7 +157,6 @@ public class BukuController {
     private void cariData() {
         String kataKunci = view.txtCari.getText();
         loadDataBuku(kataKunci);
-//        tinngal pake aja ya gaess
 
     }
 

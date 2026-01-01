@@ -12,6 +12,8 @@ public class AnggotaView extends JPanel {
     public JRadioButton rbSemua, rbFilterAktif, rbFilterTidakAktif, rbAktif, rbTidakAktif;
     public JButton btnTambah, btnUbah, btnHapus, btnClear;
     public JCheckBox checkSort;
+    public JLabel lblError;
+
 
     public AnggotaView() {
         setLayout(new BorderLayout(10, 10));
@@ -95,10 +97,22 @@ public class AnggotaView extends JPanel {
         btnClear = new JButton("Clear");
         pnlButtons.add(btnTambah); pnlButtons.add(btnUbah); 
         pnlButtons.add(btnHapus); pnlButtons.add(btnClear);
+        lblError = new JLabel(" ");
+        lblError.setForeground(Color.RED);
+        pnlButtons.add(lblError);
+
 
         add(pnlAtas, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(pnlButtons, BorderLayout.SOUTH);
+        
+        btnTambah.addActionListener(e -> {
+        if (txtNama.getText().trim().isEmpty() || txtTelp.getText().trim().isEmpty()) {
+        lblError.setText("Nama dan No Telp tidak boleh kosong");
+        return;
+        }
+        lblError.setText(" ");
+        });
 
         // Inisialisasi controller 
         AnggotaController controller = new AnggotaController(this);

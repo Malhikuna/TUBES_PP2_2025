@@ -12,6 +12,7 @@ public class BukuView extends JPanel {
     public JSpinner spnStok;
     public JButton btnTambah, btnUbah, btnHapus, btnClear;
     public JCheckBox checkSort;
+    public JLabel lblError;
 
     public BukuView() {
         setLayout(new BorderLayout(10, 10));
@@ -73,4 +74,34 @@ public class BukuView extends JPanel {
         pnlButtons.add(btnHapus); pnlButtons.add(btnClear);
         add(pnlButtons, BorderLayout.SOUTH);
     }
+    
+    private boolean validasiInput() {
+    if (txtJudul.getText().trim().isEmpty()) {
+        lblError.setText(" Judul buku tidak boleh kosong");
+        txtJudul.requestFocus();
+        return false;
+    }
+
+    if (txtPengarang.getText().trim().isEmpty()) {
+        lblError.setText(" Pengarang tidak boleh kosong");
+        txtPengarang.requestFocus();
+        return false;
+    }
+
+    if (txtKategori.getText().trim().isEmpty()) {
+        lblError.setText(" Kategori tidak boleh kosong");
+        txtKategori.requestFocus();
+        return false;
+    }
+
+    if ((int) spnStok.getValue() <= 0) {
+        lblError.setText(" Stok harus lebih dari 0");
+        spnStok.requestFocus();
+        return false;
+    }
+
+    lblError.setText(" ");
+    return true;
+}
+
 }
