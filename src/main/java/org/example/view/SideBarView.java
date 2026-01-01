@@ -75,7 +75,7 @@ public class SideBarView extends JFrame {
 
         btnDash.addActionListener(e -> {
             cardLayout.show(contentPanel, "Dashboard");
-            dashboardView.loadDataDashboard();
+            dashboardView.loadTopBooks();
         });
 
         btnTransaksi.addActionListener(e -> {

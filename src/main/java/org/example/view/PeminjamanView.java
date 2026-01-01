@@ -1,6 +1,8 @@
 package org.example.view;
 
+import org.example.controller.PeminjamanDialogController;
 import org.example.controller.TransaksiController;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -24,6 +26,7 @@ public class PeminjamanView extends JPanel {
 
     public PeminjamanView() {
         this.transaksiController = new TransaksiController(this);
+
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -78,12 +81,14 @@ public class PeminjamanView extends JPanel {
 
         for (int i = 0; i < modelFromDb.getRowCount(); i++) {
             Object[] row = new Object[7];
+
             row[0] = modelFromDb.getValueAt(i, 0);
             row[1] = modelFromDb.getValueAt(i, 1);
             row[2] = modelFromDb.getValueAt(i, 2);
             row[3] = modelFromDb.getValueAt(i, 3);
 
-            String status = modelFromDb.getValueAt(i, 5).toString();
+            Object statusObj = modelFromDb.getValueAt(i, 5);
+            String status = (statusObj != null) ? statusObj.toString() : "";
             row[5] = status;
 
             if (status.equalsIgnoreCase("Dipinjam")) {
@@ -93,7 +98,18 @@ public class PeminjamanView extends JPanel {
             }
 
             Object dendaObj = modelFromDb.getValueAt(i, 6);
-            double dendaVal = (dendaObj != null) ? Double.parseDouble(dendaObj.toString()) : 0;
+
+            double dendaVal = 0;
+            if (dendaObj != null) {
+                try {
+                    String cleanDenda = dendaObj.toString().replaceAll("[^0-9.]", "");
+                    if (!cleanDenda.isEmpty()) {
+                        dendaVal = Double.parseDouble(cleanDenda);
+                    }
+                } catch (Exception e) {
+                    dendaVal = 0;
+                }
+            }
             row[6] = nf.format(dendaVal);
 
             tableModel.addRow(row);
@@ -118,10 +134,11 @@ public class PeminjamanView extends JPanel {
         if (!text.trim().isEmpty()) {
             filters.add(RowFilter.regexFilter("(?i)" + text, 1));
         }
+
         if (rbDipinjam.isSelected()) {
-            filters.add(RowFilter.regexFilter("^Dipinjam$", 5));
+            filters.add(RowFilter.regexFilter("Dipinjam", 5));
         } else if (rbKembali.isSelected()) {
-            filters.add(RowFilter.regexFilter("^Kembali$", 5));
+            filters.add(RowFilter.regexFilter("Kembali", 5));
         }
         rowSorter.setRowFilter(RowFilter.andFilter(filters));
     }
@@ -143,8 +160,14 @@ public class PeminjamanView extends JPanel {
         add(pnlButtons, BorderLayout.SOUTH);
 
         btnPinjamBaru.addActionListener(e -> {
-            PeminjamanDialogView dialog = new PeminjamanDialogView((Frame) SwingUtilities.getWindowAncestor(this), this.transaksiController);
-            dialog.setVisible(true);
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+
+            PeminjamanDialogView dialogView = new PeminjamanDialogView(parentFrame);
+
+            new PeminjamanDialogController(dialogView, this.transaksiController);
+
+            dialogView.setVisible(true);
+
             refreshTable();
         });
 
@@ -195,17 +218,13 @@ public class PeminjamanView extends JPanel {
     private void cetakLaporan() {
         try {
             MessageFormat header = new MessageFormat("Laporan Riwayat Peminjaman Perpustakaan");
-
             MessageFormat footer = new MessageFormat("Halaman {0,number,integer}");
-
             boolean complete = tableLog.print(JTable.PrintMode.FIT_WIDTH, header, footer);
-
             if (complete) {
                 JOptionPane.showMessageDialog(this, "Sukses Export ke PDF!");
             } else {
                 JOptionPane.showMessageDialog(this, "Proses dibatalkan.");
             }
-
         } catch (PrinterException pe) {
             JOptionPane.showMessageDialog(this, "Gagal Mencetak: " + pe.getMessage());
         }
@@ -216,8 +235,13 @@ public class PeminjamanView extends JPanel {
             if (!e.getValueIsAdjusting()) {
                 int row = tableLog.getSelectedRow();
                 if (row != -1) {
-                    String status = tableModel.getValueAt(tableLog.convertRowIndexToModel(row), 5).toString();
-                    btnKembalikan.setEnabled(status.equalsIgnoreCase("Dipinjam"));
+                    try {
+                        int modelRow = tableLog.convertRowIndexToModel(row);
+                        String status = tableModel.getValueAt(modelRow, 5).toString();
+                        btnKembalikan.setEnabled(status.equalsIgnoreCase("Dipinjam"));
+                    } catch (Exception ex) {
+                        btnKembalikan.setEnabled(false);
+                    }
                 } else {
                     btnKembalikan.setEnabled(false);
                 }
