@@ -7,7 +7,7 @@ public class GeneratorID {
         int max = 0;
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            Object value = model.getValueAt(i, 1);
+            Object value = model.getValueAt(i, 0);
 
             if (value == null) continue;
 
