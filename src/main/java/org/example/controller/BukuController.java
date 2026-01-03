@@ -31,8 +31,7 @@ public class BukuController {
             String kategori = view.txtKategori.getText();
             int stok = (int) view.spnStok.getValue();
 
-            if (judul.isEmpty()) {
-                JOptionPane.showMessageDialog(view, "Judul tidak boleh kosong!");
+            if (!validasiInput(judul, pengarang, kategori, stok)) {
                 return;
             }
 
@@ -44,26 +43,37 @@ public class BukuController {
         // 2. Aksi Tombol UBAH
         view.btnUbah.addActionListener(e -> {
             int row = view.table.getSelectedRow();
-            if (row != -1) {
-                String id = view.model.getValueAt(row, 1).toString();
-                String judul = view.txtJudul.getText();
-                String pengarang = view.txtPengarang.getText();
-                String kategori = view.txtKategori.getText();
-                int stok = (int) view.spnStok.getValue();
 
-                ubahBuku(id, judul, pengarang, kategori, stok);
-                loadDataBuku(null);
-                clearForm();
-            } else {
-                JOptionPane.showMessageDialog(view, "Pilih baris yang ingin diubah!");
+            if (row == -1) {
+                JOptionPane.showMessageDialog(view, "Pilih data yang ingin diubah!");
+                return;
             }
+
+            String id = view.model.getValueAt(row, 1).toString();
+            String judul = view.txtJudul.getText();
+            String pengarang = view.txtPengarang.getText();
+            String kategori = view.txtKategori.getText();
+            int stok = (int) view.spnStok.getValue();
+
+            if (!validasiInput(judul, pengarang, kategori, stok)) {
+                return;
+            }
+
+            ubahBuku(id, judul, pengarang, kategori, stok);
+            loadDataBuku(null);
+            clearForm();
         });
+
 
         // 3. Aksi Tombol HAPUS
         view.btnHapus.addActionListener(e -> {
             int row = view.table.getSelectedRow();
             if (row != -1) {
                 String id = view.model.getValueAt(row, 1).toString();
+                if (id == null || id.isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "ID Buku tidak valid!");
+                    return;
+                }
                 int confirm = JOptionPane.showConfirmDialog(view, "Hapus buku ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     hapusBuku(id);
@@ -106,6 +116,43 @@ public class BukuController {
             view.spnStok.setValue(0);
             view.table.clearSelection();
 }
+
+
+    private boolean validasiInput(String judul, String pengarang, String kategori, int stok) {
+
+        if (judul == null || judul.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Judul buku tidak boleh kosong!");
+            return false;
+        }
+
+        if (judul.length() < 3) {
+            JOptionPane.showMessageDialog(view, "Judul buku minimal 3 karakter!");
+            return false;
+        }
+
+        if (pengarang == null || pengarang.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Nama pengarang tidak boleh kosong!");
+            return false;
+        }
+
+        if (pengarang.matches(".*\\d.*")) {
+            JOptionPane.showMessageDialog(view, "Nama pengarang tidak boleh mengandung angka!");
+            return false;
+        }
+
+        if (kategori == null || kategori.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Kategori tidak boleh kosong!");
+            return false;
+        }
+
+        if (stok <= 0) {
+            JOptionPane.showMessageDialog(view, "Stok harus lebih dari 0!");
+            return false;
+        }
+
+        return true;
+    }
+
 
     public void loadDataBuku(String kataKunci) {
         DefaultTableModel tableModel = view.model;
@@ -154,11 +201,6 @@ public class BukuController {
     }
 
 
-    private void cariData() {
-        String kataKunci = view.txtCari.getText();
-        loadDataBuku(kataKunci);
-
-    }
 
     public void tambahBuku(String id, String judul, String pengarang, String kategori, int stok) {
         try {

@@ -31,6 +31,12 @@ public class AnggotaController {
             String nama = view.txtNama.getText();
             String telp = view.txtTelp.getText();
             String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
+
+
+            //validasi
+            if (!validasiInput(nama, telp, status)) {
+                return;
+            }
             
             tambahAnggota(id, nama, telp, status);
             loadDataAnggota("", "ASC", "Semua");
@@ -40,20 +46,55 @@ public class AnggotaController {
         // Tombol UBAH
         view.btnUbah.addActionListener(e -> {
             int row = view.table.getSelectedRow();
-            if (row != -1) {
-                String id = view.model.getValueAt(row, 0).toString();
-                ubahAnggota(id, view.txtNama.getText(), view.txtTelp.getText(), 
-                            view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif");
-                loadDataAnggota("", "ASC", "Semua");
-                clearForm();
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(view, "Pilih data anggota yang ingin diubah!");
+                return;
             }
+
+            String id = view.model.getValueAt(row, 0).toString();
+            String nama = view.txtNama.getText();
+            String telp = view.txtTelp.getText();
+            String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
+
+            if (id == null || id.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "ID anggota tidak valid!");
+                return;
+            }
+
+            if (!validasiInput(nama, telp, status)) {
+                return;
+            }
+
+            ubahAnggota(id, nama, telp, status);
+            loadDataAnggota("", "ASC", "Semua");
+            clearForm();
         });
 
         // Tombol HAPUS
         view.btnHapus.addActionListener(e -> {
             int row = view.table.getSelectedRow();
-            if (row != -1) {
-                String id = view.model.getValueAt(row, 0).toString();
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(view, "Pilih data anggota yang ingin dihapus!");
+                return;
+            }
+
+            String id = view.model.getValueAt(row, 0).toString();
+
+            if (id == null || id.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "ID anggota tidak valid!");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    view,
+                    "Yakin ingin menghapus anggota ini?",
+                    "Konfirmasi",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
                 hapusAnggota(id);
                 loadDataAnggota("", "ASC", "Semua");
                 clearForm();
@@ -104,6 +145,48 @@ public class AnggotaController {
         view.rbSemua.setSelected(true);
         view.table.clearSelection();
     }
+
+
+    private boolean validasiInput(String nama, String telp, String status) {
+
+        if (nama == null || nama.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Nama anggota tidak boleh kosong!");
+            return false;
+        }
+
+        if (nama.length() < 3) {
+            JOptionPane.showMessageDialog(view, "Nama anggota minimal 3 karakter!");
+            return false;
+        }
+
+        if (nama.matches(".*\\d.*")) {
+            JOptionPane.showMessageDialog(view, "Nama anggota tidak boleh mengandung angka!");
+            return false;
+        }
+
+        if (telp == null || telp.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Nomor telepon tidak boleh kosong!");
+            return false;
+        }
+
+        if (!telp.matches("\\d+")) {
+            JOptionPane.showMessageDialog(view, "Nomor telepon hanya boleh berisi angka!");
+            return false;
+        }
+
+        if (telp.length() < 10 || telp.length() > 13) {
+            JOptionPane.showMessageDialog(view, "Nomor telepon harus 10–13 digit!");
+            return false;
+        }
+
+        if (!status.equals("Aktif") && !status.equals("Tidak Aktif")) {
+            JOptionPane.showMessageDialog(view, "Status anggota tidak valid!");
+            return false;
+        }
+
+        return true;
+    }
+
 
 
     public void loadDataAnggota(String kataKunci, String sortOrder, String filterStatus) {
