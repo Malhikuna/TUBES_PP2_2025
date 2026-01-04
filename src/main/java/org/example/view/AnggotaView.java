@@ -36,11 +36,9 @@ public class AnggotaView extends JPanel {
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtCari = new JTextField(15);
-        checkSort = new JCheckBox("Z-A");
 
         pnlSearch.add(new JLabel("Cari Nama/ID: "));
         pnlSearch.add(txtCari);
-        pnlSearch.add(checkSort);
         
         pnlHeader.add(pnlFilter, BorderLayout.WEST);
         pnlHeader.add(pnlSearch, BorderLayout.EAST);
@@ -105,14 +103,6 @@ public class AnggotaView extends JPanel {
         add(pnlAtas, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(pnlButtons, BorderLayout.SOUTH);
-        
-        btnTambah.addActionListener(e -> {
-        if (txtNama.getText().trim().isEmpty() || txtTelp.getText().trim().isEmpty()) {
-        lblError.setText("Nama dan No Telp tidak boleh kosong");
-        return;
-        }
-        lblError.setText(" ");
-        });
 
         // Inisialisasi controller 
         AnggotaController controller = new AnggotaController(this);
