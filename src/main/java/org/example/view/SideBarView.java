@@ -68,6 +68,8 @@ public class SideBarView extends JFrame {
         anggotaView = new AnggotaView();
         bukuView = new BukuView();
 
+        dashboardView.loadTopBooks();
+
         contentPanel.add(dashboardView, "Dashboard");
         contentPanel.add(bukuView, "Buku");
         contentPanel.add(anggotaView, "Anggota");

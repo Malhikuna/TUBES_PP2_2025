@@ -52,7 +52,7 @@ public class AnggotaController {
                 return;
             }
 
-            String id = view.model.getValueAt(row, 0).toString();
+            String id = view.model.getValueAt(row, 1).toString();
             String nama = view.txtNama.getText();
             String telp = view.txtTelp.getText();
             String status = view.rbAktif.isSelected() ? "Aktif" : "Tidak Aktif";
@@ -80,7 +80,7 @@ public class AnggotaController {
                 return;
             }
 
-            String id = view.model.getValueAt(row, 0).toString();
+            String id = view.model.getValueAt(row, 1).toString();
 
             if (id == null || id.isEmpty()) {
                 JOptionPane.showMessageDialog(view, "ID anggota tidak valid!");
@@ -108,9 +108,9 @@ public class AnggotaController {
         view.table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && view.table.getSelectedRow() != -1) {
                 int row = view.table.getSelectedRow();
-                view.txtId.setText(view.model.getValueAt(row, 0).toString());
-                view.txtNama.setText(view.model.getValueAt(row, 1).toString());
-                view.txtTelp.setText(view.model.getValueAt(row, 2).toString());
+                view.txtId.setText(view.model.getValueAt(row, 1).toString());
+                view.txtNama.setText(view.model.getValueAt(row, 2).toString());
+                view.txtTelp.setText(view.model.getValueAt(row, 3).toString());
             }
         });
 
@@ -224,8 +224,10 @@ public class AnggotaController {
             }
 
             res = pst.executeQuery();
+            int no = 1;
             while (res.next()) {
                 tableModel.addRow(new Object[]{
+                        no++,
                         res.getString("id_anggota"),
                         res.getString("nama"),
                         res.getString("no_telp"),

@@ -228,7 +228,7 @@ public class BukuController {
             pst.setString(2, pengarang);
             pst.setString(3, kategori);
             pst.setInt(4, stok);
-            pst.setString(5, id); // Kunci update
+            pst.setString(5, id);
             pst.executeUpdate();
             JOptionPane.showMessageDialog(null, "Data Berhasil Diubah");
         } catch (Exception e) {

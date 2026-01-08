@@ -4,7 +4,7 @@ import org.example.KoneksiDB;
 
 import java.sql.*;
 
-public class AdminController {
+public class LoginController {
 
     public boolean login(String username, String password) {
         Connection conn = KoneksiDB.configDB();

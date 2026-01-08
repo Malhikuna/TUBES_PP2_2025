@@ -3,11 +3,11 @@ package org.example.util;
 import javax.swing.table.DefaultTableModel;
 
 public class GeneratorID {
-    public static String generate(DefaultTableModel model, String prefix) {
+    public static String generate(DefaultTableModel model, String prefix, int idColumnIndex) {
         int max = 0;
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            Object value = model.getValueAt(i, 0);
+            Object value = model.getValueAt(i, idColumnIndex);
 
             if (value == null) continue;
 
@@ -25,10 +25,10 @@ public class GeneratorID {
     }
 
     public static String generateAnggota(DefaultTableModel model) {
-        return generate(model, "A");
+        return generate(model, "A", 1);
     }
 
     public static String generateBuku(DefaultTableModel model) {
-        return generate(model, "B");
+        return generate(model, "B", 1);
     }
 }

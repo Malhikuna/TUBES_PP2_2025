@@ -36,18 +36,18 @@ public class AnggotaView extends JPanel {
 
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtCari = new JTextField(15);
-        checkSort = new JCheckBox("Z-A");
+//        checkSort = new JCheckBox("Z-A");
 
         pnlSearch.add(new JLabel("Cari Nama/ID: "));
         pnlSearch.add(txtCari);
-        pnlSearch.add(checkSort);
+//        pnlSearch.add(checkSort);
         
         pnlHeader.add(pnlFilter, BorderLayout.WEST);
         pnlHeader.add(pnlSearch, BorderLayout.EAST);
 
         //  Form Input
         JPanel pnlInput = new JPanel(new GridBagLayout());
-        pnlInput.setBorder(BorderFactory.createTitledBorder("Form Input Anggota"));
+        pnlInput.setBorder(BorderFactory.createTitledBorder("Form Input Data Anggota"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -85,8 +85,22 @@ public class AnggotaView extends JPanel {
         pnlAtas.add(pnlInput, BorderLayout.CENTER);
 
         // PANEL TENGAH (Tabel) 
-        model = new DefaultTableModel(new String[]{"ID", "Nama", "No Telp", "Status"}, 0);
+        model = new DefaultTableModel(
+                new String[]{"No", "ID Anggota", "Nama", "No Telp", "Status"},
+                0
+        );
+
         table = new JTable(model);
+
+        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        table.getColumnModel().getColumn(0).setMaxWidth(50);
+        table.getColumnModel().getColumn(0).setMinWidth(30);
+
+        table.getColumnModel().getColumn(1).setPreferredWidth(10);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(120);
+        table.getColumnModel().getColumn(4).setPreferredWidth(10);
+
         JScrollPane scrollPane = new JScrollPane(table);
 
         // PANEL BAWAH (Tombol CRUD)
@@ -105,14 +119,6 @@ public class AnggotaView extends JPanel {
         add(pnlAtas, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(pnlButtons, BorderLayout.SOUTH);
-        
-        btnTambah.addActionListener(e -> {
-        if (txtNama.getText().trim().isEmpty() || txtTelp.getText().trim().isEmpty()) {
-        lblError.setText("Nama dan No Telp tidak boleh kosong");
-        return;
-        }
-        lblError.setText(" ");
-        });
 
         // Inisialisasi controller 
         AnggotaController controller = new AnggotaController(this);
