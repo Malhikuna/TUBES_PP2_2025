@@ -1,4 +1,4 @@
 package org.example.view;
 
-public class ContohView {
+public class TransaksiView {
 }
