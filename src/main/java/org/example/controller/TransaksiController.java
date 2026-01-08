@@ -117,14 +117,23 @@ public class TransaksiController {
     }
 
     public void hapusLog(int idLog) {
+        Connection conn = null;
         try {
-            Connection conn = KoneksiDB.configDB();
+            conn = KoneksiDB.configDB();
+            conn.setAutoCommit(false);
             String sql = "DELETE FROM peminjaman WHERE id_log = ?";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setInt(1, idLog);
-            pst.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Riwayat Berhasil Dihapus");
+            int affected = pst.executeUpdate();
+            if (affected > 0) {
+                conn.commit();
+                JOptionPane.showMessageDialog(null, "Riwayat Berhasil Dihapus");
+            } else {
+                conn.rollback();
+                JOptionPane.showMessageDialog(null, "Data tidak ditemukan");
+            }
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             JOptionPane.showMessageDialog(null, "Gagal Hapus: " + e.getMessage());
         }
     }
